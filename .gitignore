@@ -6,4 +6,7 @@ riderModule.iml
 
 .DS_Store
 
+*.user
+*.DotSettings.user
+
 CLAUDE.md
