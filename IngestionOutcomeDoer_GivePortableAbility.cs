@@ -13,7 +13,7 @@ public class IngestionOutcomeDoer_GivePortableAbility : IngestionOutcomeDoer {
 
         var abilityDef = containerComp.Props.abilityDef;
         var charges = containerComp.Props.charges;
-        var hediffDef = containerComp.Props.hediffDef;
+        var hediffDef = DefDatabase<HediffDef>.GetNamed("PortableAbilityStatus");
 
         if (abilityDef == null || hediffDef == null) return;
 

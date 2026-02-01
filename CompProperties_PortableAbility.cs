@@ -15,9 +15,6 @@ public class CompProperties_PortableAbility : CompProperties {
     [UsedImplicitly]
     public int charges = 1;
 
-    [UsedImplicitly]
-    public HediffDef? hediffDef; //  PortableAbilityStatus
-
     public CompProperties_PortableAbility() {
         compClass = typeof(CompPortableAbility);
     }
@@ -29,10 +26,6 @@ public class CompProperties_PortableAbility : CompProperties {
 
         if (abilityDef == null) {
             yield return "abilityDef is null";
-        }
-
-        if (hediffDef == null) {
-            yield return "hediffDef is null";
         }
     }
 }
