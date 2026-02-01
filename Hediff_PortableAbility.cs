@@ -7,41 +7,51 @@ namespace PortableAbility;
 // ReSharper disable once InconsistentNaming
 [UsedImplicitly]
 public class Hediff_PortableAbility : HediffWithComps {
-    public AbilityDef? AbilityDef;
-    public int Charges;
+    private AbilityDef? _abilityDef;
+    private int _charges;
 
-    public override string LabelInBrackets => $"{Charges}x";
+    public AbilityDef? AbilityDef {
+        get => _abilityDef;
+        set => _abilityDef = value;
+    }
+
+    public int Charges {
+        get => _charges;
+        set => _charges = value;
+    }
+
+    public override string LabelInBrackets => $"{_charges}x";
 
     public override bool TryMergeWith(Hediff other) {
         if (other is not Hediff_PortableAbility otherPortable ||
-            AbilityDef != otherPortable.AbilityDef) return false;
+            _abilityDef != otherPortable._abilityDef) return false;
 
-        Charges += otherPortable.Charges;
+        _charges += otherPortable._charges;
         return true;
     }
-    
+
     public override void PostAdd(DamageInfo? dinfo) {
         base.PostAdd(dinfo);
-        if (AbilityDef == null || pawn.abilities == null) return;
+        if (_abilityDef == null || pawn.abilities == null) return;
 
-        if (pawn.abilities.GetAbility(AbilityDef) == null) {
-            pawn.abilities.GainAbility(AbilityDef);
+        if (pawn.abilities.GetAbility(_abilityDef) == null) {
+            pawn.abilities.GainAbility(_abilityDef);
         }
     }
 
     public override void PostRemoved() {
         base.PostRemoved();
-        if (AbilityDef == null || pawn.abilities == null) return;
+        if (_abilityDef == null || pawn.abilities == null) return;
 
-        var ability = pawn.abilities.GetAbility(AbilityDef);
+        var ability = pawn.abilities.GetAbility(_abilityDef);
         if (ability != null) {
-            pawn.abilities.RemoveAbility(AbilityDef);
+            pawn.abilities.RemoveAbility(_abilityDef);
         }
     }
 
     public override void ExposeData() {
         base.ExposeData();
-        Scribe_Defs.Look(ref AbilityDef, "abilityDef");
-        Scribe_Values.Look(ref Charges, "charges");
+        Scribe_Defs.Look(ref _abilityDef, "abilityDef");
+        Scribe_Values.Look(ref _charges, "charges");
     }
 }
