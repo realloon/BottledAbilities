@@ -36,19 +36,19 @@ public class Hediff_PortableAbility : HediffWithComps {
 
     public override void PostAdd(DamageInfo? dinfo) {
         base.PostAdd(dinfo);
-        if (_abilityDef == null || pawn.abilities == null) return;
+        if (_abilityDef is null || pawn.abilities is null) return;
 
-        if (pawn.abilities.GetAbility(_abilityDef) == null) {
+        if (pawn.abilities.GetAbility(_abilityDef) is null) {
             pawn.abilities.GainAbility(_abilityDef);
         }
     }
 
     public override void PostRemoved() {
         base.PostRemoved();
-        if (_abilityDef == null || pawn.abilities == null) return;
+        if (_abilityDef is null || pawn.abilities is null) return;
 
         var ability = pawn.abilities.GetAbility(_abilityDef);
-        if (ability != null) {
+        if (ability is not null) {
             pawn.abilities.RemoveAbility(_abilityDef);
         }
     }

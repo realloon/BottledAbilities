@@ -24,7 +24,7 @@ public class CompProperties_PortableAbility : CompProperties {
             yield return item;
         }
 
-        if (abilityDef == null) {
+        if (abilityDef is null) {
             yield return "abilityDef is null";
         }
     }

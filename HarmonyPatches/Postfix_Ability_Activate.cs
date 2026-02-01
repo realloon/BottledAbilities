@@ -15,7 +15,7 @@ public static class Postfix_Ability_Activate {
             .OfType<Hediff_PortableAbility>()
             .FirstOrDefault(h => h.AbilityDef == __instance.def);
 
-        if (managerHediff == null) return;
+        if (managerHediff is null) return;
 
         managerHediff.Charges -= 1;
 

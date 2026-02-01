@@ -16,14 +16,14 @@ public class Prefix_FloatMenuOptionProvider_Ingest {
         Thing clickedThing,
         FloatMenuContext context,
         ref FloatMenuOption __result) {
-        if (context.FirstSelectedPawn == null) return;
+        if (context.FirstSelectedPawn is null) return;
 
         var portableAbilityComp = clickedThing.TryGetComp<CompPortableAbility>();
 
         var abilityDef = portableAbilityComp?.Props.abilityDef;
-        if (abilityDef == null) return;
+        if (abilityDef is null) return;
 
-        if (context.FirstSelectedPawn.abilities.GetAbility(abilityDef) == null) return;
+        if (context.FirstSelectedPawn.abilities.GetAbility(abilityDef) is null) return;
 
         string label = !clickedThing.def.ingestible.ingestCommandString.NullOrEmpty()
             ? clickedThing.def.ingestible.ingestCommandString.Formatted(clickedThing.LabelShort)
