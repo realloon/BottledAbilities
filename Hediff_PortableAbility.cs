@@ -20,6 +20,10 @@ public class Hediff_PortableAbility : HediffWithComps {
         set => _charges = value;
     }
 
+    public override string LabelBase => _abilityDef?.label ?? base.LabelBase;
+
+    public override string Description => _abilityDef?.description ?? base.Description;
+
     public override string LabelInBrackets => $"{_charges}x";
 
     public override bool TryMergeWith(Hediff other) {
