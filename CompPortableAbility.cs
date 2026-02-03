@@ -3,9 +3,12 @@ using Verse;
 namespace PortableAbility;
 
 public class CompPortableAbility : ThingComp {
-    public CompProperties_PortableAbility Props => (CompProperties_PortableAbility)props;
-
     public override string CompInspectStringExtra() {
-        return $"Contains: {Props.abilityDef!.label} ({Props.charges} charges)";
+        var doer = parent.def.ingestible?.outcomeDoers?.OfType<IngestionOutcomeDoer_GivePortableAbility>()
+            .FirstOrDefault();
+
+        return doer?.abilityDef is not null
+            ? $"Contains: {doer.abilityDef.label} ({doer.charges} charges)"
+            : base.CompInspectStringExtra();
     }
 }

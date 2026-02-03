@@ -7,19 +7,16 @@ namespace PortableAbility;
 [UsedImplicitly]
 // ReSharper disable once InconsistentNaming
 public class IngestionOutcomeDoer_GivePortableAbility : IngestionOutcomeDoer {
+    public readonly AbilityDef abilityDef;
+    public readonly int charges = 1;
+
     protected override void DoIngestionOutcomeSpecial(Pawn pawn, Thing ingested, int ingestedCount) {
-        var containerComp = ingested.TryGetComp<CompPortableAbility>();
-        if (containerComp is null) return;
+        var hediffDef = DefDatabase<HediffDef>.GetNamed("PortableAbilityStatus")!;
 
-        var abilityDef = containerComp.Props.abilityDef;
-        var charges = containerComp.Props.charges;
-        var hediffDef = DefDatabase<HediffDef>.GetNamed("PortableAbilityStatus");
+        var hediff = (Hediff_PortableAbility)HediffMaker.MakeHediff(hediffDef, pawn);
+        hediff.AbilityDef = abilityDef;
+        hediff.Charges = charges;
 
-        if (abilityDef is null || hediffDef is null) return;
-
-        var newHediff = (Hediff_PortableAbility)HediffMaker.MakeHediff(hediffDef, pawn);
-        newHediff.AbilityDef = abilityDef;
-        newHediff.Charges = charges;
-        pawn.health.AddHediff(newHediff);
+        pawn.health.AddHediff(hediff);
     }
 }

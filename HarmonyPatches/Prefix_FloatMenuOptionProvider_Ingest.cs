@@ -7,8 +7,8 @@ using Verse;
 
 namespace PortableAbility.HarmonyPatches;
 
-[HarmonyPatch(typeof(FloatMenuOptionProvider_Ingest), "GetSingleOptionFor")]
 [UsedImplicitly]
+[HarmonyPatch(typeof(FloatMenuOptionProvider_Ingest), "GetSingleOptionFor")]
 public class Prefix_FloatMenuOptionProvider_Ingest {
     [UsedImplicitly]
     [HarmonyPostfix]
@@ -18,9 +18,10 @@ public class Prefix_FloatMenuOptionProvider_Ingest {
         ref FloatMenuOption __result) {
         if (context.FirstSelectedPawn is null) return;
 
-        var portableAbilityComp = clickedThing.TryGetComp<CompPortableAbility>();
+        var doer = clickedThing.def.ingestible?.outcomeDoers?.OfType<IngestionOutcomeDoer_GivePortableAbility>()
+            .FirstOrDefault();
 
-        var abilityDef = portableAbilityComp?.Props.abilityDef;
+        var abilityDef = doer?.abilityDef;
         if (abilityDef is null) return;
 
         if (context.FirstSelectedPawn.abilities.GetAbility(abilityDef) is null) return;
