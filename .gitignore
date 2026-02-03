@@ -10,3 +10,7 @@ riderModule.iml
 *.DotSettings.user
 
 CLAUDE.md
+
+#tmp
+Refs/
+Defs/
