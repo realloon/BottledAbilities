@@ -5,7 +5,7 @@ using Verse;
 
 // ReSharper disable InconsistentNaming
 
-namespace PortableAbility.HarmonyPatches;
+namespace BottledAbilities.HarmonyPatches;
 
 [UsedImplicitly]
 [HarmonyPatch(typeof(FloatMenuOptionProvider_Ingest), "GetSingleOptionFor")]
@@ -18,7 +18,7 @@ public class Prefix_FloatMenuOptionProvider_Ingest {
         ref FloatMenuOption __result) {
         if (context.FirstSelectedPawn is null) return;
 
-        var doer = clickedThing.def.ingestible?.outcomeDoers?.OfType<IngestionOutcomeDoer_GivePortableAbility>()
+        var doer = clickedThing.def.ingestible?.outcomeDoers?.OfType<IngestionOutcomeDoer_GiveBottledAbility>()
             .FirstOrDefault();
 
         var abilityDef = doer?.abilityDef;

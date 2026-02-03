@@ -5,7 +5,7 @@ using Verse;
 
 // ReSharper disable InconsistentNaming
 
-namespace PortableAbility.HarmonyPatches;
+namespace BottledAbilities.HarmonyPatches;
 
 [HarmonyPatch(typeof(Ability), nameof(Ability.Activate), typeof(LocalTargetInfo), typeof(LocalTargetInfo))]
 public static class Postfix_Ability_Activate {
@@ -14,7 +14,7 @@ public static class Postfix_Ability_Activate {
         var pawn = __instance.pawn;
 
         var managerHediff = pawn?.health.hediffSet.hediffs
-            .OfType<Hediff_PortableAbility>()
+            .OfType<Hediff_BottledAbility>()
             .FirstOrDefault(h => h.AbilityDef == __instance.def);
 
         if (managerHediff is null) return;
