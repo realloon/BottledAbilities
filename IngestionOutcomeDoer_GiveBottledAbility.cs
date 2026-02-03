@@ -18,7 +18,7 @@ public class IngestionOutcomeDoer_GiveBottledAbility : IngestionOutcomeDoer {
             return;
         }
 
-        var hediffDef = DefDatabase<HediffDef>.GetNamed("BottledAbilityStatus")!;
+        var hediffDef = DefDatabase<HediffDef>.GetNamed("VortexBA_ImbibedAbility")!;
 
         var hediff = (Hediff_BottledAbility)HediffMaker.MakeHediff(hediffDef, pawn);
         hediff.AbilityDef = abilityDef;
