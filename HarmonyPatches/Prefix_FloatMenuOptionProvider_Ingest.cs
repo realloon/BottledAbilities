@@ -10,8 +10,8 @@ namespace PortableAbility.HarmonyPatches;
 [HarmonyPatch(typeof(FloatMenuOptionProvider_Ingest), "GetSingleOptionFor")]
 [UsedImplicitly]
 public class Prefix_FloatMenuOptionProvider_Ingest {
-    [HarmonyPostfix]
     [UsedImplicitly]
+    [HarmonyPostfix]
     private static void FilterExistingAbility(
         Thing clickedThing,
         FloatMenuContext context,
@@ -25,7 +25,7 @@ public class Prefix_FloatMenuOptionProvider_Ingest {
 
         if (context.FirstSelectedPawn.abilities.GetAbility(abilityDef) is null) return;
 
-        string label = !clickedThing.def.ingestible.ingestCommandString.NullOrEmpty()
+        var label = !clickedThing.def.ingestible.ingestCommandString.NullOrEmpty()
             ? clickedThing.def.ingestible.ingestCommandString.Formatted(clickedThing.LabelShort)
             : "ConsumeThing".Translate(clickedThing.LabelShort, clickedThing);
 
