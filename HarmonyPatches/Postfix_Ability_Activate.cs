@@ -1,4 +1,5 @@
 using HarmonyLib;
+using JetBrains.Annotations;
 using RimWorld;
 using Verse;
 
@@ -8,6 +9,7 @@ namespace PortableAbility.HarmonyPatches;
 
 [HarmonyPatch(typeof(Ability), nameof(Ability.Activate), typeof(LocalTargetInfo), typeof(LocalTargetInfo))]
 public static class Postfix_Ability_Activate {
+    [UsedImplicitly]
     public static void Postfix(Ability __instance, LocalTargetInfo target) {
         var pawn = __instance.pawn;
 
