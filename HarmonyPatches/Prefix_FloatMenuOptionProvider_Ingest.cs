@@ -26,7 +26,7 @@ public class Prefix_FloatMenuOptionProvider_Ingest {
 
         if (context.FirstSelectedPawn.abilities.GetAbility(abilityDef) is null) return;
 
-        var label = !clickedThing.def.ingestible.ingestCommandString.NullOrEmpty()
+        var label = !clickedThing.def.ingestible!.ingestCommandString.NullOrEmpty()
             ? clickedThing.def.ingestible.ingestCommandString.Formatted(clickedThing.LabelShort)
             : "ConsumeThing".Translate(clickedThing.LabelShort, clickedThing);
 
