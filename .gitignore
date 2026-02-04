@@ -1,18 +1,16 @@
 bin/
 obj/
-/packages/
+packages/
+
+.idea/
 riderModule.iml
 /_ReSharper.Caches/
 
 .DS_Store
+tmp/
 
 *.user
 *.DotSettings.user
 
 CLAUDE.md
 .claude/
-
-.idea/
-
-#tmp
-Refs/
