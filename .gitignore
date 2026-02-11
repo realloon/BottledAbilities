@@ -13,5 +13,6 @@ tmp/
 *.DotSettings.user
 
 AGENTS.md
+.codex/
 CLAUDE.md
 .claude/
