@@ -12,5 +12,6 @@ tmp/
 *.user
 *.DotSettings.user
 
+AGENTS.md
 CLAUDE.md
 .claude/
