@@ -8,8 +8,15 @@ namespace BottledAbilities;
 [UsedImplicitly]
 public sealed class BottledAbilitiesMod : Mod {
     private static readonly List<Color> ColorPalette = BuildColorPalette();
-    private const float TopPadding = 32f;
-    private const float TabsAreaHeight = 40f;
+    private const float Grid = 8f;
+    private const float HalfGrid = 4f;
+    private const float QuarterGrid = 2f;
+
+    private const float TopPadding = Grid * 4f;
+    private const float TabsAreaHeight = Grid * 5f;
+    private const float ButtonHeight = Grid * 4f;
+    private const float RowHeight = Grid * 4f;
+    private const float BottomReservedHeight = Grid * 8f;
 
     private enum SettingsTab {
         AbilityJars,
@@ -40,7 +47,7 @@ public sealed class BottledAbilitiesMod : Mod {
         DrawPageHint(ref y, inRect.width);
 
         if (_activeTab == SettingsTab.AbilityJars) {
-            DrawAbilityOptions(ref y, inRect.width, inRect.height - y - 76f, specs);
+            DrawAbilityOptions(ref y, inRect.width, inRect.height - y - BottomReservedHeight, specs);
             DrawResetAbilityDefaultsButton(ref y, inRect.width, specs);
         } else if (_activeTab == SettingsTab.CategoryColors) {
             DrawCategoryColors(ref y, inRect.width);
@@ -50,17 +57,16 @@ public sealed class BottledAbilitiesMod : Mod {
 
     private void DrawTabs(ref float y, float width) {
         var tabs = new[] {
-            (Tab: SettingsTab.AbilityJars, Label: "Ability Jars"),
+            (Tab: SettingsTab.AbilityJars, Label: "Bottled Abilities"),
             (Tab: SettingsTab.CategoryColors, Label: "Category Colors")
         };
 
-        const float tabGap = 10f;
-        const float tabHeight = 30f;
-        var tabWidth = (width - tabGap * (tabs.Length - 1)) / tabs.Length;
+        const float tabHeight = Grid * 4f;
+        var tabWidth = (width - Grid * (tabs.Length - 1)) / tabs.Length;
 
         for (var i = 0; i < tabs.Length; i++) {
             var tab = tabs[i];
-            var tabRect = new Rect(i * (tabWidth + tabGap), y, tabWidth, tabHeight);
+            var tabRect = new Rect(i * (tabWidth + Grid), y, tabWidth, tabHeight);
             var selected = _activeTab == tab.Tab;
             var background = selected
                 ? new Color(1f, 1f, 1f, 0.12f)
@@ -87,30 +93,30 @@ public sealed class BottledAbilitiesMod : Mod {
     }
 
     private static void DrawPageHint(ref float y, float width) {
-        var hintRect = new Rect(0f, y, width, 32f);
-        Widgets.Label(hintRect, "Changes apply after restarting the game. Disabled jars are removed on startup.");
-        y += 36f;
+        var hintRect = new Rect(0f, y, width, Grid * 4f);
+        Widgets.Label(hintRect, "Changes apply after restarting the game. Disabled bottled abilities are removed on startup.");
+        y += Grid * 5f;
     }
 
     private void DrawResetAbilityDefaultsButton(ref float y, float width, IReadOnlyList<BottledAbilitySpec> specs) {
-        y += 18f;
+        y += Grid * 2f;
 
-        if (Widgets.ButtonText(new Rect(0f, y, width, 28f), "Reset Ability Jars To Default")) {
+        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight), "Reset Bottled Abilities To Default")) {
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-                "Reset all ability jar options to default values?",
+                "Reset all bottled ability settings to default values?",
                 delegate {
                     Settings.ResetAbilityOptionsToDefault(specs);
                     WriteSettings();
                 }));
         }
 
-        y += 34f;
+        y += ButtonHeight + HalfGrid;
     }
 
     private void DrawResetColorDefaultsButton(ref float y, float width) {
-        y += 18f;
+        y += Grid * 2f;
 
-        if (Widgets.ButtonText(new Rect(0f, y, width, 28f), "Reset Category Colors To Default")) {
+        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight), "Reset Category Colors To Default")) {
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
                 "Reset all category colors to default values?",
                 delegate {
@@ -119,26 +125,31 @@ public sealed class BottledAbilitiesMod : Mod {
                 }));
         }
 
-        y += 34f;
+        y += ButtonHeight + HalfGrid;
     }
 
     private void DrawCategoryColors(ref float y, float width) {
+        const float labelWidth = 176f;
+        const float colorPreviewSize = Grid * 3f;
+        const float changeButtonWidth = Grid * 16f;
+
         foreach (var category in BottledAbilityCatalog.OrderedCategories) {
-            var rowRect = new Rect(0f, y, width, 28f);
-            var labelRect = new Rect(rowRect.x, rowRect.y + 5f, 180f, 22f);
+            var rowRect = new Rect(0f, y, width, RowHeight);
+            var labelRect = new Rect(rowRect.x, rowRect.y + HalfGrid, labelWidth, Grid * 3f);
             Widgets.Label(labelRect, BottledAbilityCatalog.CategoryLabel(category));
 
-            var colorRect = new Rect(rowRect.x + 190f, rowRect.y + 4f, 22f, 22f);
+            var colorRect = new Rect(labelRect.xMax + Grid, rowRect.y + HalfGrid, colorPreviewSize, colorPreviewSize);
             Widgets.DrawBoxSolid(colorRect, Settings.GetColor(category));
 
-            if (Widgets.ButtonText(new Rect(rowRect.x + 220f, rowRect.y, 130f, 28f), "Change")) {
+            var changeButtonRect = new Rect(colorRect.xMax + Grid, rowRect.y, changeButtonWidth, ButtonHeight);
+            if (Widgets.ButtonText(changeButtonRect, "Change")) {
                 OpenColorPicker(category);
             }
 
-            y += 30f;
+            y += RowHeight + HalfGrid;
         }
 
-        y += 6f;
+        y += Grid;
     }
 
     private void DrawAbilityOptions(ref float y, float width, float availableHeight,
@@ -152,41 +163,39 @@ public sealed class BottledAbilitiesMod : Mod {
                 .Where(x => string.Equals(x.PackageId, _selectedAbilityPackageId, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
-        var leftColumnWidth = Mathf.Min(250f, Mathf.Max(200f, width * 0.30f));
-        const float columnGap = 14f;
+        var leftColumnWidth = Mathf.Min(248f, Mathf.Max(200f, width * 0.30f));
+        const float columnGap = Grid * 2f;
         var rightColumnX = leftColumnWidth + columnGap;
         var rightColumnWidth = Mathf.Max(240f, width - leftColumnWidth - columnGap);
-        var columnsHeight = Mathf.Max(220f, availableHeight);
+        var columnsHeight = Mathf.Max(224f, availableHeight);
 
-        Widgets.Label(new Rect(0f, y, leftColumnWidth, 24f), "<b>Source</b>");
-        Widgets.Label(new Rect(rightColumnX, y, rightColumnWidth, 24f), "<b>Abilities</b>");
-        y += 28f;
+        Widgets.Label(new Rect(0f, y, leftColumnWidth, Grid * 3f), "<b>Source</b>");
+        Widgets.Label(new Rect(rightColumnX, y, rightColumnWidth, Grid * 3f), "<b>Abilities</b>");
+        y += Grid * 3f + HalfGrid;
 
         DrawPackageSelectorColumn(0f, y, leftColumnWidth, columnsHeight, packageIds);
         DrawAbilityListColumn(rightColumnX, y, rightColumnWidth, columnsHeight, filteredSpecs);
-        y += columnsHeight + 8f;
+        y += columnsHeight + Grid;
     }
 
     private void DrawPackageSelectorColumn(float x, float y, float width, float height,
         IReadOnlyList<string> packageIds) {
-        var rowHeight = 28f;
-        var rowGap = 2f;
         var contentRect = new Rect(x, y, width, height);
 
         var rowCount = Mathf.Max(1, packageIds.Count);
-        var viewHeight = 4f + rowCount * (rowHeight + rowGap);
-        var viewRect = new Rect(0f, 0f, contentRect.width - 4f, Mathf.Max(contentRect.height, viewHeight));
+        var viewHeight = HalfGrid + rowCount * (RowHeight + HalfGrid);
+        var viewRect = new Rect(0f, 0f, contentRect.width - HalfGrid, Mathf.Max(contentRect.height, viewHeight));
         Widgets.BeginScrollView(contentRect, ref _abilityPackageListScrollPosition, viewRect, false);
 
-        var rowY = 2f;
+        var rowY = HalfGrid;
         if (packageIds.Count == 0) {
-            Widgets.Label(new Rect(6f, rowY + 4f, viewRect.width - 12f, 22f), "No loaded mods.");
+            Widgets.Label(new Rect(Grid, rowY + HalfGrid, viewRect.width - Grid * 2f, Grid * 3f), "No loaded mods.");
             Widgets.EndScrollView();
             return;
         }
 
         foreach (var packageId in packageIds) {
-            var rowRect = new Rect(0f, rowY, viewRect.width - 2f, rowHeight);
+            var rowRect = new Rect(0f, rowY, viewRect.width - QuarterGrid, RowHeight);
             var isSelected = string.Equals(packageId, _selectedAbilityPackageId, StringComparison.OrdinalIgnoreCase);
             if (isSelected) {
                 Widgets.DrawHighlightSelected(rowRect);
@@ -199,9 +208,9 @@ public sealed class BottledAbilitiesMod : Mod {
                 _abilityListScrollPosition = Vector2.zero;
             }
 
-            var labelRect = new Rect(rowRect.x + 6f, rowRect.y + 5f, rowRect.width - 12f, 22f);
+            var labelRect = new Rect(rowRect.x + Grid, rowRect.y + HalfGrid, rowRect.width - Grid * 2f, Grid * 3f);
             Widgets.Label(labelRect, BottledAbilityCatalog.PackageLabel(packageId));
-            rowY += rowHeight + rowGap;
+            rowY += RowHeight + HalfGrid;
         }
 
         Widgets.EndScrollView();
@@ -212,19 +221,19 @@ public sealed class BottledAbilitiesMod : Mod {
         var contentRect = new Rect(x, y, width, height);
 
         var rows = Mathf.Max(1, specs.Count);
-        var viewHeight = 4f + rows * 30f;
-        var viewRect = new Rect(0f, 0f, contentRect.width - 16f, Mathf.Max(contentRect.height, viewHeight));
+        var viewHeight = HalfGrid + rows * RowHeight;
+        var viewRect = new Rect(0f, 0f, contentRect.width - Grid * 2f, Mathf.Max(contentRect.height, viewHeight));
         Widgets.BeginScrollView(contentRect, ref _abilityListScrollPosition, viewRect);
 
         if (specs.Count == 0) {
-            Widgets.Label(new Rect(6f, 8f, viewRect.width - 12f, 22f), "No abilities in this package.");
+            Widgets.Label(new Rect(Grid, Grid, viewRect.width - Grid * 2f, Grid * 3f), "No abilities in this package.");
             Widgets.EndScrollView();
             return;
         }
 
-        var rowY = 2f;
+        var rowY = QuarterGrid;
         foreach (var spec in specs) {
-            DrawAbilityRow(spec, 0f, ref rowY, viewRect.width - 2f);
+            DrawAbilityRow(spec, 0f, ref rowY, viewRect.width - QuarterGrid);
         }
 
         Widgets.EndScrollView();
@@ -259,24 +268,23 @@ public sealed class BottledAbilitiesMod : Mod {
     }
 
     private void DrawAbilityRow(BottledAbilitySpec spec, float x, ref float y, float width) {
-        var rowRect = new Rect(x, y, width, 28f);
+        var rowRect = new Rect(x, y, width, RowHeight);
         var abilityDef = DefDatabase<AbilityDef>.GetNamedSilentFail(spec.AbilityDefName);
         var missing = abilityDef is null;
 
         var enabled = Settings.IsEnabled(spec.AbilityDefName);
-        var categoryWidth = 140f;
-        var chargeButtonWidth = 58f;
-        const float controlsGap = 10f;
-        var reservedWidth = categoryWidth + controlsGap + chargeButtonWidth;
+        var categoryWidth = Grid * 18f;
+        var chargeButtonWidth = Grid * 7f;
+        var reservedWidth = categoryWidth + Grid + chargeButtonWidth;
 
         if (reservedWidth > width * 0.55f) {
-            categoryWidth = 116f;
-            chargeButtonWidth = 52f;
-            reservedWidth = categoryWidth + controlsGap + chargeButtonWidth;
+            categoryWidth = Grid * 14f;
+            chargeButtonWidth = Grid * 6f;
+            reservedWidth = categoryWidth + Grid + chargeButtonWidth;
         }
 
         var controlsStartX = rowRect.x + Mathf.Max(120f, width - reservedWidth);
-        var checkboxRect = new Rect(rowRect.x, rowRect.y, Mathf.Max(120f, controlsStartX - rowRect.x - 6f), 28f);
+        var checkboxRect = new Rect(rowRect.x, rowRect.y, Mathf.Max(120f, controlsStartX - rowRect.x - Grid), RowHeight);
 
         var label = abilityDef?.label ?? GenText.SplitCamelCase(spec.AbilityDefName);
         if (missing) {
@@ -287,18 +295,18 @@ public sealed class BottledAbilitiesMod : Mod {
         Settings.SetEnabled(spec.AbilityDefName, enabled);
 
         var category = Settings.GetCategory(spec.AbilityDefName);
-        var categoryButtonRect = new Rect(controlsStartX, rowRect.y, categoryWidth, 28f);
+        var categoryButtonRect = new Rect(controlsStartX, rowRect.y, categoryWidth, RowHeight);
         if (Widgets.ButtonText(categoryButtonRect, BottledAbilityCatalog.CategoryLabel(category))) {
             OpenCategoryMenu(spec.AbilityDefName);
         }
 
         var charges = Settings.GetCharges(spec.AbilityDefName);
-        var chargeButtonRect = new Rect(categoryButtonRect.xMax + controlsGap, rowRect.y, chargeButtonWidth, 28f);
+        var chargeButtonRect = new Rect(categoryButtonRect.xMax + Grid, rowRect.y, chargeButtonWidth, RowHeight);
         if (Widgets.ButtonText(chargeButtonRect, $"x{charges}")) {
             OpenChargesSlider(spec.AbilityDefName, charges);
         }
 
-        y += 30f;
+        y += RowHeight;
     }
 
     private void OpenCategoryMenu(string abilityDefName) {
