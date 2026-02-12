@@ -1,9 +1,11 @@
-using RimWorld;
+using JetBrains.Annotations;
 using UnityEngine;
+using RimWorld;
 using Verse;
 
 namespace BottledAbilities;
 
+[UsedImplicitly]
 public sealed class BottledAbilitiesMod : Mod {
     private static readonly List<Color> ColorPalette = BuildColorPalette();
     private const float TabsAreaHeight = 36f;
@@ -54,7 +56,8 @@ public sealed class BottledAbilitiesMod : Mod {
     private void DrawTabs(ref float y, float width) {
         var tabs = new List<TabRecord> {
             new("Ability Jars", () => activeTab = SettingsTab.AbilityJars, activeTab == SettingsTab.AbilityJars),
-            new("Category Colors", () => activeTab = SettingsTab.CategoryColors, activeTab == SettingsTab.CategoryColors)
+            new("Category Colors", () => activeTab = SettingsTab.CategoryColors,
+                activeTab == SettingsTab.CategoryColors)
         };
 
         // TabDrawer draws tabs at (baseRect.y - tabHeight), so offset the base rect down.
@@ -123,7 +126,8 @@ public sealed class BottledAbilitiesMod : Mod {
         y += 6f;
     }
 
-    private void DrawAbilityOptions(ref float y, float width, float availableHeight, IReadOnlyList<BottledAbilitySpec> specs) {
+    private void DrawAbilityOptions(ref float y, float width, float availableHeight,
+        IReadOnlyList<BottledAbilitySpec> specs) {
         y += 4f;
         Widgets.Label(new Rect(0f, y, width, 24f), "Ability jars");
         y += 28f;
@@ -133,7 +137,8 @@ public sealed class BottledAbilitiesMod : Mod {
 
         var filteredSpecs = selectedAbilityPackageId is null
             ? []
-            : specs.Where(x => string.Equals(x.PackageId, selectedAbilityPackageId, StringComparison.OrdinalIgnoreCase)).ToList();
+            : specs.Where(x => string.Equals(x.PackageId, selectedAbilityPackageId, StringComparison.OrdinalIgnoreCase))
+                .ToList();
 
         var leftColumnWidth = Mathf.Min(250f, Mathf.Max(200f, width * 0.30f));
         var columnGap = 14f;
@@ -153,7 +158,8 @@ public sealed class BottledAbilitiesMod : Mod {
         y += columnsHeight + 8f;
     }
 
-    private void DrawPackageSelectorColumn(float x, float y, float width, float height, IReadOnlyList<string> packageIds) {
+    private void DrawPackageSelectorColumn(float x, float y, float width, float height,
+        IReadOnlyList<string> packageIds) {
         var rowHeight = 28f;
         var rowGap = 2f;
         var contentRect = new Rect(x, y, width, height);
@@ -175,8 +181,7 @@ public sealed class BottledAbilitiesMod : Mod {
             var isSelected = string.Equals(packageId, selectedAbilityPackageId, StringComparison.OrdinalIgnoreCase);
             if (isSelected) {
                 Widgets.DrawHighlightSelected(rowRect);
-            }
-            else {
+            } else {
                 Widgets.DrawHighlightIfMouseover(rowRect);
             }
 
@@ -189,10 +194,12 @@ public sealed class BottledAbilitiesMod : Mod {
             Widgets.Label(labelRect, BottledAbilityCatalog.PackageLabel(packageId));
             rowY += rowHeight + rowGap;
         }
+
         Widgets.EndScrollView();
     }
 
-    private void DrawAbilityListColumn(float x, float y, float width, float height, IReadOnlyList<BottledAbilitySpec> specs) {
+    private void DrawAbilityListColumn(float x, float y, float width, float height,
+        IReadOnlyList<BottledAbilitySpec> specs) {
         var contentRect = new Rect(x, y, width, height);
 
         var rows = Mathf.Max(1, specs.Count);
@@ -210,6 +217,7 @@ public sealed class BottledAbilitiesMod : Mod {
         foreach (var spec in specs) {
             DrawAbilityRow(spec, 0f, ref rowY, viewRect.width - 2f);
         }
+
         Widgets.EndScrollView();
     }
 
@@ -288,15 +296,14 @@ public sealed class BottledAbilitiesMod : Mod {
     }
 
     private void OpenCategoryMenu(string abilityDefName) {
-        var options = new List<FloatMenuOption>();
-
-        foreach (var category in BottledAbilityCatalog.OrderedCategories) {
-            var captured = category;
-            options.Add(new FloatMenuOption(BottledAbilityCatalog.CategoryLabel(captured), delegate {
-                Settings.SetCategory(abilityDefName, captured);
-                WriteSettings();
-            }));
-        }
+        var options = BottledAbilityCatalog
+            .OrderedCategories
+            .Select(captured => new FloatMenuOption(
+                BottledAbilityCatalog.CategoryLabel(captured), delegate {
+                    Settings.SetCategory(abilityDefName, captured);
+                    WriteSettings();
+                }))
+            .ToList();
 
         Find.WindowStack.Add(new FloatMenu(options));
     }
@@ -327,9 +334,8 @@ public sealed class BottledAbilitiesMod : Mod {
 
         for (var h = 0f; h < 1f; h += 1f / 24f) {
             foreach (var saturation in new[] { 0.35f, 0.55f, 0.75f, 0.95f }) {
-                foreach (var value in new[] { 0.55f, 0.75f, 0.95f }) {
-                    colors.Add(Color.HSVToRGB(h, saturation, value));
-                }
+                colors.AddRange(new[] { 0.55f, 0.75f, 0.95f }
+                    .Select(value => Color.HSVToRGB(h, saturation, value)));
             }
         }
 

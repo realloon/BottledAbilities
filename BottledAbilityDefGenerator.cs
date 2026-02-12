@@ -5,7 +5,8 @@ using Verse;
 namespace BottledAbilities;
 
 public static class BottledAbilityDefGenerator {
-    private static readonly System.Reflection.MethodInfo? RemoveThingDefMethod = AccessTools.Method(typeof(DefDatabase<ThingDef>), "Remove");
+    private static readonly System.Reflection.MethodInfo? RemoveThingDefMethod =
+        AccessTools.Method(typeof(DefDatabase<ThingDef>), "Remove");
 
     public static void GenerateOrUpdate(bool hotReload) {
         var settings = BottledAbilitiesMod.Settings;
@@ -14,7 +15,9 @@ public static class BottledAbilityDefGenerator {
 
         var jarCategory = DefDatabase<ThingCategoryDef>.GetNamed(BottledAbilityCatalog.JarThingCategoryDefName, false);
         if (jarCategory is null) {
-            Log.ErrorOnce($"[BottledAbilities] Missing thing category def '{BottledAbilityCatalog.JarThingCategoryDefName}'.", 176512301);
+            Log.ErrorOnce(
+                $"[BottledAbilities] Missing thing category def '{BottledAbilityCatalog.JarThingCategoryDefName}'.",
+                176512301);
         }
 
         foreach (var spec in specs) {
@@ -37,47 +40,56 @@ public static class BottledAbilityDefGenerator {
             if (existing is null) {
                 var generated = CreateJarDef(jarCategory, abilityDef, spec, color, charges);
                 DefGenerator.AddImpliedDef(generated, hotReload);
-            }
-            else {
-                ConfigureJarDef(existing, jarCategory, abilityDef, spec, color, charges);
+            } else {
+                ConfigureJarDef(existing, jarCategory, abilityDef, color, charges);
             }
         }
     }
 
     private static void RemoveThingDef(ThingDef def) {
         if (RemoveThingDefMethod is null) {
-            Log.ErrorOnce("[BottledAbilities] Unable to remove disabled jar defs. Reflection lookup failed.", 1394478412);
+            Log.ErrorOnce("[BottledAbilities] Unable to remove disabled jar defs. Reflection lookup failed.",
+                1394478412);
             return;
         }
 
         RemoveThingDefMethod.Invoke(null, [def]);
     }
 
-    private static ThingDef CreateJarDef(ThingCategoryDef? jarCategory, AbilityDef abilityDef, BottledAbilitySpec spec, UnityEngine.Color color, int charges) {
-        var def = new ThingDef();
-        def.defName = spec.JarDefName;
-        def.shortHash = 0;
-        def.index = ushort.MaxValue;
-        def.debugRandomId = (ushort)Rand.RangeInclusive(0, 65535);
+    private static ThingDef CreateJarDef(ThingCategoryDef? jarCategory, AbilityDef abilityDef, BottledAbilitySpec spec,
+        UnityEngine.Color color, int charges) {
+        var def = new ThingDef {
+            defName = spec.JarDefName,
+            shortHash = 0,
+            index = ushort.MaxValue,
+            debugRandomId = (ushort)Rand.RangeInclusive(0, 65535)
+        };
 
-        ConfigureJarDef(def, jarCategory, abilityDef, spec, color, charges);
+        ConfigureJarDef(def, jarCategory, abilityDef, color, charges);
 
         return def;
     }
 
-    private static void ConfigureJarDef(ThingDef def, ThingCategoryDef? jarCategory, AbilityDef abilityDef, BottledAbilitySpec spec, UnityEngine.Color color, int charges) {
+    private static void ConfigureJarDef(ThingDef def, ThingCategoryDef? jarCategory, AbilityDef abilityDef,
+        UnityEngine.Color color, int charges) {
         ApplyBaseProperties(def, jarCategory);
 
-        var abilityLabel = abilityDef.label.NullOrEmpty() ? GenText.SplitCamelCase(abilityDef.defName).ToLowerInvariant() : abilityDef.label;
-        var readableLabel = abilityDef.label.NullOrEmpty() ? GenText.SplitCamelCase(abilityDef.defName) : abilityDef.label.CapitalizeFirst();
+        var abilityLabel = abilityDef.label.NullOrEmpty()
+            ? GenText.SplitCamelCase(abilityDef.defName).ToLowerInvariant()
+            : abilityDef.label;
+        var readableLabel = abilityDef.label.NullOrEmpty()
+            ? GenText.SplitCamelCase(abilityDef.defName)
+            : abilityDef.label.CapitalizeFirst();
 
         def.label = $"bottled {abilityLabel}";
         def.description = $"Give {readableLabel}.";
         def.graphicData.color = color;
-        def.ingestible.outcomeDoers = [new IngestionOutcomeDoer_GiveBottledAbility {
-            abilityDef = abilityDef,
-            charges = charges
-        }];
+        def.ingestible.outcomeDoers = [
+            new IngestionOutcomeDoer_GiveBottledAbility {
+                abilityDef = abilityDef,
+                charges = charges
+            }
+        ];
         def.descriptionHyperlinks = null;
         def.ClearCachedData();
     }
@@ -111,6 +123,8 @@ public static class BottledAbilityDefGenerator {
         def.graphicData = BuildBaseGraphicData();
         def.ingestible = BuildBaseIngestible();
     }
+
+    #region Helper
 
     private static List<StatModifier> BuildBaseStatBases() {
         return [
@@ -149,4 +163,6 @@ public static class BottledAbilityDefGenerator {
             outcomeDoers = []
         };
     }
+
+    #endregion
 }

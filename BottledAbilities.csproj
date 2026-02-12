@@ -33,8 +33,4 @@
       <None Remove="CLAUDE.md" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Types\" />
-    </ItemGroup>
-
 </Project>
