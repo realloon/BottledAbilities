@@ -4,12 +4,6 @@ using Verse;
 
 namespace BottledAbilities;
 
-public enum BottledAbilityPresetKind {
-    Balanced,
-    Combat,
-    Utility
-}
-
 public sealed class BottledAbilitySpec {
     public BottledAbilitySpec(string abilityDefName, string packageId, BottledAbilityCategory defaultCategory, int defaultCharges = 1) {
         AbilityDefName = abilityDefName;
@@ -173,50 +167,20 @@ public static class BottledAbilityCatalog {
         };
     }
 
-    public static Color DefaultColor(BottledAbilityPresetKind preset, BottledAbilityCategory category) {
-        return preset switch {
-            BottledAbilityPresetKind.Combat => category switch {
-                BottledAbilityCategory.Support => new Color(0.30f, 0.65f, 0.55f),
-                BottledAbilityCategory.Control => new Color(0.88f, 0.52f, 0.25f),
-                BottledAbilityCategory.Mobility => new Color(0.45f, 0.75f, 1.00f),
-                BottledAbilityCategory.Offense => new Color(0.98f, 0.18f, 0.18f),
-                BottledAbilityCategory.Utility => new Color(0.85f, 0.72f, 0.25f),
-                BottledAbilityCategory.Tech => new Color(0.55f, 0.62f, 0.90f),
-                _ => Color.white
-            },
-            BottledAbilityPresetKind.Utility => category switch {
-                BottledAbilityCategory.Support => new Color(0.20f, 0.82f, 0.62f),
-                BottledAbilityCategory.Control => new Color(0.58f, 0.56f, 0.90f),
-                BottledAbilityCategory.Mobility => new Color(0.22f, 0.74f, 0.96f),
-                BottledAbilityCategory.Offense => new Color(0.82f, 0.46f, 0.38f),
-                BottledAbilityCategory.Utility => new Color(0.99f, 0.84f, 0.30f),
-                BottledAbilityCategory.Tech => new Color(0.36f, 0.72f, 0.88f),
-                _ => Color.white
-            },
-            _ => category switch {
-                BottledAbilityCategory.Support => new Color(0.22f, 0.78f, 0.42f),
-                BottledAbilityCategory.Control => new Color(0.72f, 0.43f, 0.93f),
-                BottledAbilityCategory.Mobility => new Color(0.24f, 0.78f, 0.96f),
-                BottledAbilityCategory.Offense => new Color(0.94f, 0.34f, 0.22f),
-                BottledAbilityCategory.Utility => new Color(0.96f, 0.79f, 0.24f),
-                BottledAbilityCategory.Tech => new Color(0.44f, 0.66f, 0.96f),
-                _ => Color.white
-            }
+    public static Color DefaultColor(BottledAbilityCategory category) {
+        return category switch {
+            BottledAbilityCategory.Support => new Color(0.22f, 0.78f, 0.42f),
+            BottledAbilityCategory.Control => new Color(0.72f, 0.43f, 0.93f),
+            BottledAbilityCategory.Mobility => new Color(0.24f, 0.78f, 0.96f),
+            BottledAbilityCategory.Offense => new Color(0.94f, 0.34f, 0.22f),
+            BottledAbilityCategory.Utility => new Color(0.96f, 0.79f, 0.24f),
+            BottledAbilityCategory.Tech => new Color(0.44f, 0.66f, 0.96f),
+            _ => Color.white
         };
     }
 
-    public static bool DefaultEnabled(BottledAbilityPresetKind preset, BottledAbilityCategory category) {
-        return preset switch {
-            BottledAbilityPresetKind.Combat => category is BottledAbilityCategory.Control
-                or BottledAbilityCategory.Mobility
-                or BottledAbilityCategory.Offense
-                or BottledAbilityCategory.Tech,
-            BottledAbilityPresetKind.Utility => category is BottledAbilityCategory.Support
-                or BottledAbilityCategory.Utility
-                or BottledAbilityCategory.Tech
-                or BottledAbilityCategory.Mobility,
-            _ => true
-        };
+    public static bool DefaultEnabled() {
+        return true;
     }
 
     private static BottledAbilitySpec BuildSpec(AbilityDef abilityDef) {
