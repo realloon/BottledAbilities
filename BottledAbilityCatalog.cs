@@ -103,12 +103,10 @@ public static class BottledAbilityCatalog {
     };
 
     public static IReadOnlyList<BottledAbilitySpec> GetAvailableSpecs() {
-        var result = new List<BottledAbilitySpec>();
-
-        foreach (var abilityDef in DefDatabase<AbilityDef>.AllDefsListForReading) {
-            if (abilityDef is null || abilityDef.defName.NullOrEmpty()) continue;
-            result.Add(BuildSpec(abilityDef));
-        }
+        var result = DefDatabase<AbilityDef>.AllDefsListForReading
+            .Where(abilityDef => !abilityDef.defName.NullOrEmpty())
+            .Select(BuildSpec)
+            .ToList();
 
         return result
             .OrderBy(x => PackageLabel(x.PackageId), StringComparer.OrdinalIgnoreCase)
@@ -123,12 +121,12 @@ public static class BottledAbilityCatalog {
 
     public static string CategoryLabel(BottledAbilityCategory category) {
         return category switch {
-            BottledAbilityCategory.Support => TranslateOrFallback("VortexBA_Category_Support", "Support"),
-            BottledAbilityCategory.Control => TranslateOrFallback("VortexBA_Category_Control", "Control"),
-            BottledAbilityCategory.Mobility => TranslateOrFallback("VortexBA_Category_Mobility", "Mobility"),
-            BottledAbilityCategory.Offense => TranslateOrFallback("VortexBA_Category_Offense", "Offense"),
-            BottledAbilityCategory.Utility => TranslateOrFallback("VortexBA_Category_Utility", "Utility"),
-            BottledAbilityCategory.Tech => TranslateOrFallback("VortexBA_Category_Tech", "Tech"),
+            BottledAbilityCategory.Support => "VortexBA_Category_Support".Translate(),
+            BottledAbilityCategory.Control => "VortexBA_Category_Control".Translate(),
+            BottledAbilityCategory.Mobility => "VortexBA_Category_Mobility".Translate(),
+            BottledAbilityCategory.Offense => "VortexBA_Category_Offense".Translate(),
+            BottledAbilityCategory.Utility => "VortexBA_Category_Utility".Translate(),
+            BottledAbilityCategory.Tech => "VortexBA_Category_Tech".Translate(),
             _ => category.ToString()
         };
     }
@@ -140,15 +138,10 @@ public static class BottledAbilityCatalog {
             return expansionDef.label;
         }
 
-        return normalizedPackageId switch {
-            "ludeon.rimworld.royalty" => "Royalty",
-            "ludeon.rimworld.ideology" => "Ideology",
-            "ludeon.rimworld.biotech" => "Biotech",
-            "ludeon.rimworld.odyssey" => "Odyssey",
-            "ludeon.rimworld.anomaly" => "Anomaly",
-            "ludeon.rimworld" => "Core",
-            _ => packageId
-        };
+        var mod = ModLister.GetModWithIdentifier(normalizedPackageId) ??
+                  ModLister.GetModWithIdentifier(normalizedPackageId, ignorePostfix: true);
+
+        return mod.Name;
     }
 
     public static Color DefaultColor(BottledAbilityCategory category) {
@@ -163,13 +156,11 @@ public static class BottledAbilityCatalog {
         };
     }
 
-    public static bool DefaultEnabled() {
-        return true;
-    }
+    public static bool DefaultEnabled() => true;
 
     private static BottledAbilitySpec BuildSpec(AbilityDef abilityDef) {
         var abilityDefName = abilityDef.defName;
-        var packageId = abilityDef.modContentPack?.PackageId ?? "unknown";
+        var packageId = abilityDef.modContentPack!.PackageId;
 
         if (KnownDefaults.TryGetValue(abilityDefName, out var defaults)) {
             return new BottledAbilitySpec(abilityDefName, packageId, defaults.Category, defaults.Charges);
@@ -211,9 +202,5 @@ public static class BottledAbilityCatalog {
 
     private static bool ContainsAny(string value, params string[] keywords) {
         return keywords.Any(value.Contains);
-    }
-
-    private static string TranslateOrFallback(string key, string fallback) {
-        return key.CanTranslate() ? key.Translate().ToString() : fallback;
     }
 }

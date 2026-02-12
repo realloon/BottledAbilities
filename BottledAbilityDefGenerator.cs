@@ -78,7 +78,7 @@ public static class BottledAbilityDefGenerator {
             ? GenText.SplitCamelCase(abilityDef.defName)
             : abilityDef.label;
 
-        def.label = "VortexBA_GeneratedJarLabel".Translate(abilityLabel).ToString();
+        def.label = "VortexBA_GeneratedJarLabel".Translate(abilityLabel);
         def.description = "VortexBA_GeneratedJarDescription".Translate(abilityLabel.CapitalizeFirst()).ToString();
         def.graphicData.color = color;
         def.ingestible.outcomeDoers = [

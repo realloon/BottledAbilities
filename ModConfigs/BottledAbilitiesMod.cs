@@ -36,7 +36,7 @@ public sealed class BottledAbilitiesMod : Mod {
         Settings.InitializeIfNeeded();
     }
 
-    public override string SettingsCategory() => "VortexBA_SettingsCategory".Translate().ToString();
+    public override string SettingsCategory() => "VortexBA_SettingsCategory".Translate();
 
     public override void DoSettingsWindowContents(Rect inRect) {
         var specs = BottledAbilityCatalog.GetAvailableSpecs();
@@ -57,8 +57,8 @@ public sealed class BottledAbilitiesMod : Mod {
 
     private void DrawTabs(ref float y, float width) {
         var tabs = new[] {
-            (Tab: SettingsTab.AbilityJars, Label: "VortexBA_SettingsTabAbilityJars".Translate().ToString()),
-            (Tab: SettingsTab.CategoryColors, Label: "VortexBA_SettingsTabCategoryColors".Translate().ToString())
+            (Tab: SettingsTab.AbilityJars, Label: "VortexBA_SettingsTabAbilityJars".Translate()),
+            (Tab: SettingsTab.CategoryColors, Label: "VortexBA_SettingsTabCategoryColors".Translate())
         };
 
         const float tabHeight = Grid * 4f;
@@ -288,7 +288,7 @@ public sealed class BottledAbilitiesMod : Mod {
 
         var label = abilityDef?.label ?? GenText.SplitCamelCase(spec.AbilityDefName);
         if (missing) {
-            label = "VortexBA_SettingsAbilityMissing".Translate(label).ToString();
+            label = "VortexBA_SettingsAbilityMissing".Translate(label);
         }
 
         Widgets.CheckboxLabeled(checkboxRect, label, ref enabled);
@@ -324,7 +324,7 @@ public sealed class BottledAbilitiesMod : Mod {
 
     private void OpenChargesSlider(string abilityDefName, int currentCharges) {
         Find.WindowStack.Add(new Dialog_Slider(
-            val => "VortexBA_SettingsChargesSliderLabel".Translate(val).ToString(),
+            val => "VortexBA_SettingsChargesSliderLabel".Translate(val),
             BottledAbilitySettings.MinCharges,
             BottledAbilitySettings.MaxCharges,
             delegate(int selected) {
