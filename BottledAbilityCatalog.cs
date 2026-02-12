@@ -7,15 +7,6 @@ namespace BottledAbilities;
 public static class BottledAbilityCatalog {
     public const string JarThingCategoryDefName = "VortexBA_BottledAbilities";
 
-    private static readonly IReadOnlyList<string> PreferredPackageOrder = [
-        "ludeon.rimworld.royalty",
-        "ludeon.rimworld.ideology",
-        "ludeon.rimworld.biotech",
-        "ludeon.rimworld.odyssey",
-        "ludeon.rimworld.anomaly",
-        "ludeon.rimworld"
-    ];
-
     private static readonly Dictionary<string, (BottledAbilityCategory Category, int Charges)> KnownDefaults =
         new(StringComparer.Ordinal) {
             ["Painblock"] = (BottledAbilityCategory.Support, 1),
@@ -119,8 +110,10 @@ public static class BottledAbilityCatalog {
             result.Add(BuildSpec(abilityDef));
         }
 
-        result.Sort(CompareSpec);
-        return result;
+        return result
+            .OrderBy(x => PackageLabel(x.PackageId), StringComparer.OrdinalIgnoreCase)
+            .ThenBy(x => x.AbilityDefName, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     public static BottledAbilitySpec? FindSpec(string abilityDefName) {
@@ -208,26 +201,6 @@ public static class BottledAbilityCatalog {
         }
 
         return BottledAbilityCategory.Utility;
-    }
-
-    private static int CompareSpec(BottledAbilitySpec left, BottledAbilitySpec right) {
-        var leftOrder = PackageOrder(left.PackageId);
-        var rightOrder = PackageOrder(right.PackageId);
-        if (leftOrder != rightOrder) return leftOrder.CompareTo(rightOrder);
-
-        var packageCmp = string.Compare(left.PackageId, right.PackageId, StringComparison.OrdinalIgnoreCase);
-        return packageCmp == 0
-            ? string.Compare(left.AbilityDefName, right.AbilityDefName, StringComparison.OrdinalIgnoreCase)
-            : packageCmp;
-    }
-
-    private static int PackageOrder(string packageId) {
-        var normalized = packageId.ToLowerInvariant();
-        for (var i = 0; i < PreferredPackageOrder.Count; i++) {
-            if (PreferredPackageOrder[i] == normalized) return i;
-        }
-
-        return 1000;
     }
 
     private static bool ContainsAny(string value, params string[] keywords) {
