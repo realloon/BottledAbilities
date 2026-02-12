@@ -8,8 +8,8 @@ namespace BottledAbilities;
 
 [UsedImplicitly]
 public class IngestionOutcomeDoer_GiveBottledAbility : IngestionOutcomeDoer {
-    public readonly AbilityDef abilityDef = null!;
-    public readonly int charges = 1;
+    public AbilityDef abilityDef = null!;
+    public int charges = 1;
 
     protected override void DoIngestionOutcomeSpecial(Pawn pawn, Thing ingested, int ingestedCount) {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
