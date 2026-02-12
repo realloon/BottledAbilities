@@ -21,7 +21,7 @@ public class CompBottledAbility : ThingComp {
 
     public override string CompInspectStringExtra() {
         var doer = CachedDoer;
-        return $"Contains: {doer.abilityDef.label} ({doer.charges} charges)";
+        return "VortexBA_CompContains".Translate(doer.abilityDef.label, doer.charges).ToString();
     }
 
     public Gizmo? GetInventoryGizmoExtra(Pawn pawn) {
@@ -29,8 +29,8 @@ public class CompBottledAbility : ThingComp {
         if (pawn.abilities.GetAbility(doer.abilityDef) is not null) return null;
 
         return new Command_Action {
-            defaultLabel = $"Use {parent.LabelNoCount}",
-            defaultDesc = $"Gain {doer.abilityDef.label} ({doer.charges} charges)",
+            defaultLabel = "VortexBA_CompUse".Translate(parent.LabelNoCount).ToString(),
+            defaultDesc = "VortexBA_CompGain".Translate(doer.abilityDef.label, doer.charges).ToString(),
             icon = parent.def.uiIcon,
             iconAngle = parent.def.uiIconAngle,
             iconOffset = parent.def.uiIconOffset,

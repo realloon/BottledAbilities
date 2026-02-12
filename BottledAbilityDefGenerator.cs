@@ -75,14 +75,11 @@ public static class BottledAbilityDefGenerator {
         ApplyBaseProperties(def, jarCategory);
 
         var abilityLabel = abilityDef.label.NullOrEmpty()
-            ? GenText.SplitCamelCase(abilityDef.defName).ToLowerInvariant()
-            : abilityDef.label;
-        var readableLabel = abilityDef.label.NullOrEmpty()
             ? GenText.SplitCamelCase(abilityDef.defName)
-            : abilityDef.label.CapitalizeFirst();
+            : abilityDef.label;
 
-        def.label = $"bottled {abilityLabel}";
-        def.description = $"Give {readableLabel}.";
+        def.label = "VortexBA_GeneratedJarLabel".Translate(abilityLabel).ToString();
+        def.description = "VortexBA_GeneratedJarDescription".Translate(abilityLabel.CapitalizeFirst()).ToString();
         def.graphicData.color = color;
         def.ingestible.outcomeDoers = [
             new IngestionOutcomeDoer_GiveBottledAbility {

@@ -30,9 +30,7 @@ public class Prefix_FloatMenuOptionProvider_Ingest {
             ? clickedThing.def.ingestible.ingestCommandString.Formatted(clickedThing.LabelShort)
             : "ConsumeThing".Translate(clickedThing.LabelShort, clickedThing);
 
-        __result = new FloatMenuOption(
-            $"{label}: {context.FirstSelectedPawn.LabelShort} already has {abilityDef.label}",
-            null
-        );
+        __result = new FloatMenuOption("VortexBA_FloatMenuAlreadyHasAbility"
+            .Translate(label, context.FirstSelectedPawn.LabelShort, abilityDef.label), null);
     }
 }

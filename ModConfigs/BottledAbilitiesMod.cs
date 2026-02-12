@@ -36,7 +36,7 @@ public sealed class BottledAbilitiesMod : Mod {
         Settings.InitializeIfNeeded();
     }
 
-    public override string SettingsCategory() => "Bottled Abilities";
+    public override string SettingsCategory() => "VortexBA_SettingsCategory".Translate().ToString();
 
     public override void DoSettingsWindowContents(Rect inRect) {
         var specs = BottledAbilityCatalog.GetAvailableSpecs();
@@ -57,8 +57,8 @@ public sealed class BottledAbilitiesMod : Mod {
 
     private void DrawTabs(ref float y, float width) {
         var tabs = new[] {
-            (Tab: SettingsTab.AbilityJars, Label: "Bottled Abilities"),
-            (Tab: SettingsTab.CategoryColors, Label: "Category Colors")
+            (Tab: SettingsTab.AbilityJars, Label: "VortexBA_SettingsTabAbilityJars".Translate().ToString()),
+            (Tab: SettingsTab.CategoryColors, Label: "VortexBA_SettingsTabCategoryColors".Translate().ToString())
         };
 
         const float tabHeight = Grid * 4f;
@@ -94,16 +94,16 @@ public sealed class BottledAbilitiesMod : Mod {
 
     private static void DrawPageHint(ref float y, float width) {
         var hintRect = new Rect(0f, y, width, Grid * 4f);
-        Widgets.Label(hintRect, "Changes apply after restarting the game. Disabled bottled abilities are removed on startup.");
+        Widgets.Label(hintRect, "VortexBA_SettingsPageHint".Translate());
         y += Grid * 5f;
     }
 
     private void DrawResetAbilityDefaultsButton(ref float y, float width, IReadOnlyList<BottledAbilitySpec> specs) {
         y += Grid * 2f;
 
-        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight), "Reset Bottled Abilities To Default")) {
+        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight), "VortexBA_SettingsResetAbilitiesButton".Translate())) {
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-                "Reset all bottled ability settings to default values?",
+                "VortexBA_SettingsResetAbilitiesConfirm".Translate(),
                 delegate {
                     Settings.ResetAbilityOptionsToDefault(specs);
                     WriteSettings();
@@ -116,9 +116,9 @@ public sealed class BottledAbilitiesMod : Mod {
     private void DrawResetColorDefaultsButton(ref float y, float width) {
         y += Grid * 2f;
 
-        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight), "Reset Category Colors To Default")) {
+        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight), "VortexBA_SettingsResetColorsButton".Translate())) {
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-                "Reset all category colors to default values?",
+                "VortexBA_SettingsResetColorsConfirm".Translate(),
                 delegate {
                     Settings.ResetCategoryColorsToDefault();
                     WriteSettings();
@@ -142,7 +142,7 @@ public sealed class BottledAbilitiesMod : Mod {
             Widgets.DrawBoxSolid(colorRect, Settings.GetColor(category));
 
             var changeButtonRect = new Rect(colorRect.xMax + Grid, rowRect.y, changeButtonWidth, ButtonHeight);
-            if (Widgets.ButtonText(changeButtonRect, "Change")) {
+            if (Widgets.ButtonText(changeButtonRect, "VortexBA_SettingsChangeButton".Translate())) {
                 OpenColorPicker(category);
             }
 
@@ -169,8 +169,8 @@ public sealed class BottledAbilitiesMod : Mod {
         var rightColumnWidth = Mathf.Max(240f, width - leftColumnWidth - columnGap);
         var columnsHeight = Mathf.Max(224f, availableHeight);
 
-        Widgets.Label(new Rect(0f, y, leftColumnWidth, Grid * 3f), "<b>Source</b>");
-        Widgets.Label(new Rect(rightColumnX, y, rightColumnWidth, Grid * 3f), "<b>Abilities</b>");
+        Widgets.Label(new Rect(0f, y, leftColumnWidth, Grid * 3f), $"<b>{"VortexBA_SettingsSourceHeader".Translate()}</b>");
+        Widgets.Label(new Rect(rightColumnX, y, rightColumnWidth, Grid * 3f), $"<b>{"VortexBA_SettingsAbilitiesHeader".Translate()}</b>");
         y += Grid * 3f + HalfGrid;
 
         DrawPackageSelectorColumn(0f, y, leftColumnWidth, columnsHeight, packageIds);
@@ -189,7 +189,7 @@ public sealed class BottledAbilitiesMod : Mod {
 
         var rowY = HalfGrid;
         if (packageIds.Count == 0) {
-            Widgets.Label(new Rect(Grid, rowY + HalfGrid, viewRect.width - Grid * 2f, Grid * 3f), "No loaded mods.");
+            Widgets.Label(new Rect(Grid, rowY + HalfGrid, viewRect.width - Grid * 2f, Grid * 3f), "VortexBA_SettingsNoLoadedMods".Translate());
             Widgets.EndScrollView();
             return;
         }
@@ -226,7 +226,7 @@ public sealed class BottledAbilitiesMod : Mod {
         Widgets.BeginScrollView(contentRect, ref _abilityListScrollPosition, viewRect);
 
         if (specs.Count == 0) {
-            Widgets.Label(new Rect(Grid, Grid, viewRect.width - Grid * 2f, Grid * 3f), "No abilities in this package.");
+            Widgets.Label(new Rect(Grid, Grid, viewRect.width - Grid * 2f, Grid * 3f), "VortexBA_SettingsNoAbilitiesInPackage".Translate());
             Widgets.EndScrollView();
             return;
         }
@@ -288,7 +288,7 @@ public sealed class BottledAbilitiesMod : Mod {
 
         var label = abilityDef?.label ?? GenText.SplitCamelCase(spec.AbilityDefName);
         if (missing) {
-            label += " (missing)";
+            label = "VortexBA_SettingsAbilityMissing".Translate(label).ToString();
         }
 
         Widgets.CheckboxLabeled(checkboxRect, label, ref enabled);
@@ -324,7 +324,7 @@ public sealed class BottledAbilitiesMod : Mod {
 
     private void OpenChargesSlider(string abilityDefName, int currentCharges) {
         Find.WindowStack.Add(new Dialog_Slider(
-            val => $"Charges: x{val}",
+            val => "VortexBA_SettingsChargesSliderLabel".Translate(val).ToString(),
             BottledAbilitySettings.MinCharges,
             BottledAbilitySettings.MaxCharges,
             delegate(int selected) {
@@ -336,7 +336,7 @@ public sealed class BottledAbilitiesMod : Mod {
 
     private void OpenColorPicker(BottledAbilityCategory category) {
         Find.WindowStack.Add(new Dialog_ChooseColor(
-            $"{BottledAbilityCatalog.CategoryLabel(category)} color",
+            "VortexBA_SettingsColorPickerTitle".Translate(BottledAbilityCatalog.CategoryLabel(category)),
             Settings.GetColor(category),
             ColorPalette,
             delegate(Color chosen) {

@@ -24,7 +24,7 @@ public static class Postfix_Ability_Activate {
         if (managerHediff.Charges > 0) return;
 
         pawn?.health.RemoveHediff(managerHediff);
-        Messages.Message($"{pawn?.LabelShort}'s {__instance.def.label} has been depleted.", pawn,
+        Messages.Message("VortexBA_AbilityDepletedMessage".Translate(pawn?.LabelShort ?? string.Empty, __instance.def.label), pawn,
             MessageTypeDefOf.NeutralEvent);
     }
 }

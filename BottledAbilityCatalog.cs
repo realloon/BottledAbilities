@@ -123,18 +123,24 @@ public static class BottledAbilityCatalog {
 
     public static string CategoryLabel(BottledAbilityCategory category) {
         return category switch {
-            BottledAbilityCategory.Support => "Support",
-            BottledAbilityCategory.Control => "Control",
-            BottledAbilityCategory.Mobility => "Mobility",
-            BottledAbilityCategory.Offense => "Offense",
-            BottledAbilityCategory.Utility => "Utility",
-            BottledAbilityCategory.Tech => "Tech",
+            BottledAbilityCategory.Support => TranslateOrFallback("VortexBA_Category_Support", "Support"),
+            BottledAbilityCategory.Control => TranslateOrFallback("VortexBA_Category_Control", "Control"),
+            BottledAbilityCategory.Mobility => TranslateOrFallback("VortexBA_Category_Mobility", "Mobility"),
+            BottledAbilityCategory.Offense => TranslateOrFallback("VortexBA_Category_Offense", "Offense"),
+            BottledAbilityCategory.Utility => TranslateOrFallback("VortexBA_Category_Utility", "Utility"),
+            BottledAbilityCategory.Tech => TranslateOrFallback("VortexBA_Category_Tech", "Tech"),
             _ => category.ToString()
         };
     }
 
     public static string PackageLabel(string packageId) {
-        return packageId.ToLowerInvariant() switch {
+        var normalizedPackageId = packageId.ToLowerInvariant();
+        var expansionDef = ModLister.GetExpansionWithIdentifier(normalizedPackageId);
+        if (expansionDef is not null && !expansionDef.label.NullOrEmpty()) {
+            return expansionDef.label;
+        }
+
+        return normalizedPackageId switch {
             "ludeon.rimworld.royalty" => "Royalty",
             "ludeon.rimworld.ideology" => "Ideology",
             "ludeon.rimworld.biotech" => "Biotech",
@@ -205,5 +211,9 @@ public static class BottledAbilityCatalog {
 
     private static bool ContainsAny(string value, params string[] keywords) {
         return keywords.Any(value.Contains);
+    }
+
+    private static string TranslateOrFallback(string key, string fallback) {
+        return key.CanTranslate() ? key.Translate().ToString() : fallback;
     }
 }
