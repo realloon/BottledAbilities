@@ -28,6 +28,7 @@
 
     <ItemGroup>
       <None Remove="BottledAbilities.sln.DotSettings" />
+      <None Remove="BottledAbilities.csproj.DotSettings" />
       <None Remove=".gitignore" />
       <None Remove="AGENTS.md" />
       <None Remove="CLAUDE.md" />
