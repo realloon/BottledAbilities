@@ -7,27 +7,18 @@ public sealed class BottledAbilitySettings : ModSettings {
     public const int MinCharges = 1;
     public const int MaxCharges = 9;
 
-    private List<BottledAbilitySettingEntry> abilityEntries = [];
-    private List<BottledAbilityCategoryColorEntry> categoryColorEntries = [];
+    private List<BottledAbilitySettingEntry> _abilityEntries = [];
+    private List<BottledAbilityCategoryColorEntry> _categoryColorEntries = [];
 
-    [Unsaved] private Dictionary<string, BottledAbilitySettingEntry>? abilityByName;
-    [Unsaved] private Dictionary<BottledAbilityCategory, BottledAbilityCategoryColorEntry>? colorByCategory;
+    [Unsaved]
+    private Dictionary<string, BottledAbilitySettingEntry>? _abilityByName;
 
-    public override void ExposeData() {
-        Scribe_Collections.Look(ref abilityEntries, "abilityEntries", LookMode.Deep);
-        Scribe_Collections.Look(ref categoryColorEntries, "categoryColorEntries", LookMode.Deep);
-
-        if (Scribe.mode == LoadSaveMode.PostLoadInit) {
-            InitializeIfNeeded();
-        }
-    }
+    [Unsaved]
+    private Dictionary<BottledAbilityCategory, BottledAbilityCategoryColorEntry>? _colorByCategory;
 
     public void InitializeIfNeeded(IReadOnlyList<BottledAbilitySpec>? specs = null) {
-        abilityEntries ??= [];
-        categoryColorEntries ??= [];
-
-        abilityEntries.RemoveAll(x => x == null || x.abilityDefName.NullOrEmpty());
-        categoryColorEntries.RemoveAll(x => x == null);
+        _abilityEntries.RemoveAll(x => x == null || x.abilityDefName.NullOrEmpty());
+        _categoryColorEntries.RemoveAll(x => x == null);
 
         RebuildCaches();
         EnsureColorEntries();
@@ -41,10 +32,10 @@ public sealed class BottledAbilitySettings : ModSettings {
 
     public void ResetAbilityOptionsToDefault(IReadOnlyList<BottledAbilitySpec>? specs = null) {
         specs ??= BottledAbilityCatalog.GetAvailableSpecs();
-        abilityEntries = [];
+        _abilityEntries = [];
 
         foreach (var spec in specs) {
-            abilityEntries.Add(new BottledAbilitySettingEntry(
+            _abilityEntries.Add(new BottledAbilitySettingEntry(
                 spec.AbilityDefName,
                 BottledAbilityCatalog.DefaultEnabled(),
                 spec.DefaultCategory,
@@ -55,10 +46,10 @@ public sealed class BottledAbilitySettings : ModSettings {
     }
 
     public void ResetCategoryColorsToDefault() {
-        categoryColorEntries = [];
+        _categoryColorEntries = [];
 
         foreach (var category in BottledAbilityCatalog.OrderedCategories) {
-            categoryColorEntries.Add(new BottledAbilityCategoryColorEntry(
+            _categoryColorEntries.Add(new BottledAbilityCategoryColorEntry(
                 category,
                 BottledAbilityCatalog.DefaultColor(category)));
         }
@@ -68,12 +59,11 @@ public sealed class BottledAbilitySettings : ModSettings {
 
     public bool IsEnabled(string abilityDefName) {
         EnsureCaches();
-        return abilityByName!.GetValueOrDefault(abilityDefName)?.enabled ?? true;
+        return _abilityByName!.GetValueOrDefault(abilityDefName)?.enabled ?? true;
     }
 
     public void SetEnabled(string abilityDefName, bool enabled) {
         var entry = GetOrCreateAbilityEntry(abilityDefName);
-        if (entry.enabled == enabled) return;
 
         entry.enabled = enabled;
     }
@@ -81,7 +71,7 @@ public sealed class BottledAbilitySettings : ModSettings {
     public BottledAbilityCategory GetCategory(string abilityDefName) {
         EnsureCaches();
 
-        if (abilityByName!.TryGetValue(abilityDefName, out var entry)) {
+        if (_abilityByName!.TryGetValue(abilityDefName, out var entry)) {
             return entry.category;
         }
 
@@ -90,21 +80,19 @@ public sealed class BottledAbilitySettings : ModSettings {
 
     public void SetCategory(string abilityDefName, BottledAbilityCategory category) {
         var entry = GetOrCreateAbilityEntry(abilityDefName);
-        if (entry.category == category) return;
 
         entry.category = category;
     }
 
     public int GetCharges(string abilityDefName) {
         EnsureCaches();
-        var value = abilityByName!.GetValueOrDefault(abilityDefName)?.charges ?? 1;
+        var value = _abilityByName!.GetValueOrDefault(abilityDefName)?.charges ?? 1;
         return Mathf.Clamp(value, MinCharges, MaxCharges);
     }
 
     public void SetCharges(string abilityDefName, int charges) {
         var entry = GetOrCreateAbilityEntry(abilityDefName);
         var clamped = Mathf.Clamp(charges, MinCharges, MaxCharges);
-        if (entry.charges == clamped) return;
 
         entry.charges = clamped;
     }
@@ -112,24 +100,20 @@ public sealed class BottledAbilitySettings : ModSettings {
     public Color GetColor(BottledAbilityCategory category) {
         EnsureCaches();
 
-        if (colorByCategory!.TryGetValue(category, out var entry)) {
-            return entry.color;
-        }
-
-        return BottledAbilityCatalog.DefaultColor(category);
+        return _colorByCategory!.TryGetValue(category, out var entry)
+            ? entry.color
+            : BottledAbilityCatalog.DefaultColor(category);
     }
 
     public void SetColor(BottledAbilityCategory category, Color color) {
         EnsureCaches();
 
-        if (!colorByCategory!.TryGetValue(category, out var entry)) {
+        if (!_colorByCategory!.TryGetValue(category, out var entry)) {
             entry = new BottledAbilityCategoryColorEntry(category, color);
-            categoryColorEntries.Add(entry);
-            colorByCategory[category] = entry;
+            _categoryColorEntries.Add(entry);
+            _colorByCategory[category] = entry;
             return;
         }
-
-        if (entry.color == color) return;
 
         entry.color = color;
     }
@@ -137,45 +121,47 @@ public sealed class BottledAbilitySettings : ModSettings {
     private BottledAbilitySettingEntry GetOrCreateAbilityEntry(string abilityDefName) {
         EnsureCaches();
 
-        if (abilityByName!.TryGetValue(abilityDefName, out var entry)) {
+        if (_abilityByName!.TryGetValue(abilityDefName, out var entry)) {
             return entry;
         }
 
-        var category = BottledAbilityCatalog.FindSpec(abilityDefName)?.DefaultCategory ?? BottledAbilityCategory.Utility;
+        var category = BottledAbilityCatalog.FindSpec(abilityDefName)?.DefaultCategory ??
+                       BottledAbilityCategory.Utility;
         var defaultCharges = BottledAbilityCatalog.FindSpec(abilityDefName)?.DefaultCharges ?? 1;
-        entry = new BottledAbilitySettingEntry(abilityDefName, true, category, Mathf.Clamp(defaultCharges, MinCharges, MaxCharges));
-        abilityEntries.Add(entry);
-        abilityByName[abilityDefName] = entry;
+        entry = new BottledAbilitySettingEntry(abilityDefName, true, category,
+            Mathf.Clamp(defaultCharges, MinCharges, MaxCharges));
+        _abilityEntries.Add(entry);
+        _abilityByName[abilityDefName] = entry;
 
         return entry;
     }
 
     private void EnsureCaches() {
-        if (abilityByName is null || colorByCategory is null) {
+        if (_abilityByName is null || _colorByCategory is null) {
             RebuildCaches();
         }
     }
 
     private void RebuildCaches() {
-        abilityByName = new Dictionary<string, BottledAbilitySettingEntry>(StringComparer.Ordinal);
-        colorByCategory = new Dictionary<BottledAbilityCategory, BottledAbilityCategoryColorEntry>();
+        _abilityByName = new Dictionary<string, BottledAbilitySettingEntry>(StringComparer.Ordinal);
+        _colorByCategory = new Dictionary<BottledAbilityCategory, BottledAbilityCategoryColorEntry>();
 
-        foreach (var entry in abilityEntries) {
+        foreach (var entry in _abilityEntries) {
             entry.charges = Mathf.Clamp(entry.charges, MinCharges, MaxCharges);
-            abilityByName[entry.abilityDefName] = entry;
+            _abilityByName[entry.abilityDefName] = entry;
         }
 
-        foreach (var entry in categoryColorEntries) {
-            colorByCategory[entry.category] = entry;
+        foreach (var entry in _categoryColorEntries) {
+            _colorByCategory[entry.category] = entry;
         }
     }
 
     private void EnsureColorEntries() {
         var changed = false;
         foreach (var category in BottledAbilityCatalog.OrderedCategories) {
-            if (colorByCategory!.ContainsKey(category)) continue;
+            if (_colorByCategory!.ContainsKey(category)) continue;
 
-            categoryColorEntries.Add(new BottledAbilityCategoryColorEntry(
+            _categoryColorEntries.Add(new BottledAbilityCategoryColorEntry(
                 category,
                 BottledAbilityCatalog.DefaultColor(category)));
             changed = true;
@@ -191,9 +177,9 @@ public sealed class BottledAbilitySettings : ModSettings {
 
         var changed = false;
 
-        if (abilityEntries.Count == 0) {
+        if (_abilityEntries.Count == 0) {
             foreach (var spec in specs) {
-                abilityEntries.Add(new BottledAbilitySettingEntry(
+                _abilityEntries.Add(new BottledAbilitySettingEntry(
                     spec.AbilityDefName,
                     BottledAbilityCatalog.DefaultEnabled(),
                     spec.DefaultCategory,
@@ -201,12 +187,11 @@ public sealed class BottledAbilitySettings : ModSettings {
             }
 
             changed = true;
-        }
-        else {
+        } else {
             foreach (var spec in specs) {
-                if (abilityByName!.ContainsKey(spec.AbilityDefName)) continue;
+                if (_abilityByName!.ContainsKey(spec.AbilityDefName)) continue;
 
-                abilityEntries.Add(new BottledAbilitySettingEntry(
+                _abilityEntries.Add(new BottledAbilitySettingEntry(
                     spec.AbilityDefName,
                     BottledAbilityCatalog.DefaultEnabled(),
                     spec.DefaultCategory,
@@ -217,6 +202,15 @@ public sealed class BottledAbilitySettings : ModSettings {
 
         if (changed) {
             RebuildCaches();
+        }
+    }
+
+    public override void ExposeData() {
+        Scribe_Collections.Look(ref _abilityEntries, "abilityEntries", LookMode.Deep);
+        Scribe_Collections.Look(ref _categoryColorEntries, "categoryColorEntries", LookMode.Deep);
+
+        if (Scribe.mode == LoadSaveMode.PostLoadInit) {
+            InitializeIfNeeded();
         }
     }
 }
