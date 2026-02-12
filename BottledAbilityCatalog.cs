@@ -169,38 +169,6 @@ public static class BottledAbilityCatalog {
         return new BottledAbilitySpec(
             abilityDefName,
             packageId,
-            InferCategory(abilityDef));
-    }
-
-    private static BottledAbilityCategory InferCategory(AbilityDef abilityDef) {
-        var defName = abilityDef.defName.ToLowerInvariant();
-
-        if (ContainsAny(defName, "skip", "jump", "teleport", "longjump", "farskip", "blink", "dash")) {
-            return BottledAbilityCategory.Mobility;
-        }
-
-        if (ContainsAny(defName, "shield", "heal", "coagulate", "immunity", "repair", "invis", "protect", "focus",
-                "reassure", "counsel")) {
-            return BottledAbilityCategory.Support;
-        }
-
-        if (ContainsAny(defName, "stun", "burden", "berserk", "calm", "convert", "trial", "terror", "disable",
-                "deactivate", "serenity")) {
-            return BottledAbilityCategory.Control;
-        }
-
-        if (ContainsAny(defName, "mech", "emp", "xenogerm", "remote", "transmute", "call", "signal", "hack")) {
-            return BottledAbilityCategory.Tech;
-        }
-
-        if (abilityDef.ai_IsOffensive || abilityDef.hostile) {
-            return BottledAbilityCategory.Offense;
-        }
-
-        return BottledAbilityCategory.Utility;
-    }
-
-    private static bool ContainsAny(string value, params string[] keywords) {
-        return keywords.Any(value.Contains);
+            BottledAbilityCategory.Utility);
     }
 }
