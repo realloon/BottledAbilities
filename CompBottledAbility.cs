@@ -38,11 +38,4 @@ public class CompBottledAbility : ThingComp {
         };
     }
 
-    public static void InjectDescriptionHyperlinks(ThingDef parentDef) {
-        var doer = parentDef.ingestible!.outcomeDoers
-            .OfType<IngestionOutcomeDoer_GiveBottledAbility>().First();
-
-        parentDef.descriptionHyperlinks ??= [];
-        parentDef.descriptionHyperlinks.Add(doer.abilityDef);
-    }
 }
