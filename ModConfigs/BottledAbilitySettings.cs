@@ -14,7 +14,7 @@ public sealed class BottledAbilitySettings : ModSettings {
     private Dictionary<string, BottledAbilitySettingEntry>? _abilityByName;
 
     [Unsaved]
-    private Dictionary<BottledAbilityCategory, BottledAbilityCategoryColorEntry>? _colorByCategory;
+    private Dictionary<AbilityCategory, BottledAbilityCategoryColorEntry>? _colorByCategory;
 
     public void InitializeIfNeeded(IReadOnlyList<BottledAbilitySpec>? specs = null) {
         _abilityEntries.RemoveAll(x => x == null || x.abilityDefName.NullOrEmpty());
@@ -37,7 +37,7 @@ public sealed class BottledAbilitySettings : ModSettings {
         foreach (var spec in specs) {
             _abilityEntries.Add(new BottledAbilitySettingEntry(
                 spec.AbilityDefName,
-                BottledAbilityCatalog.DefaultEnabled(),
+                BottledAbilityCatalog.IsDefaultEnabled,
                 spec.DefaultCategory,
                 Mathf.Clamp(spec.DefaultCharges, MinCharges, MaxCharges)));
         }
@@ -68,17 +68,17 @@ public sealed class BottledAbilitySettings : ModSettings {
         entry.enabled = enabled;
     }
 
-    public BottledAbilityCategory GetCategory(string abilityDefName) {
+    public AbilityCategory GetCategory(string abilityDefName) {
         EnsureCaches();
 
         if (_abilityByName!.TryGetValue(abilityDefName, out var entry)) {
             return entry.category;
         }
 
-        return BottledAbilityCatalog.FindSpec(abilityDefName)?.DefaultCategory ?? BottledAbilityCategory.Utility;
+        return BottledAbilityCatalog.FindSpec(abilityDefName)?.DefaultCategory ?? AbilityCategory.Utility;
     }
 
-    public void SetCategory(string abilityDefName, BottledAbilityCategory category) {
+    public void SetCategory(string abilityDefName, AbilityCategory category) {
         var entry = GetOrCreateAbilityEntry(abilityDefName);
 
         entry.category = category;
@@ -97,7 +97,7 @@ public sealed class BottledAbilitySettings : ModSettings {
         entry.charges = clamped;
     }
 
-    public Color GetColor(BottledAbilityCategory category) {
+    public Color GetColor(AbilityCategory category) {
         EnsureCaches();
 
         return _colorByCategory!.TryGetValue(category, out var entry)
@@ -105,7 +105,7 @@ public sealed class BottledAbilitySettings : ModSettings {
             : BottledAbilityCatalog.DefaultColor(category);
     }
 
-    public void SetColor(BottledAbilityCategory category, Color color) {
+    public void SetColor(AbilityCategory category, Color color) {
         EnsureCaches();
 
         if (!_colorByCategory!.TryGetValue(category, out var entry)) {
@@ -126,7 +126,7 @@ public sealed class BottledAbilitySettings : ModSettings {
         }
 
         var category = BottledAbilityCatalog.FindSpec(abilityDefName)?.DefaultCategory ??
-                       BottledAbilityCategory.Utility;
+                       AbilityCategory.Utility;
         var defaultCharges = BottledAbilityCatalog.FindSpec(abilityDefName)?.DefaultCharges ?? 1;
         entry = new BottledAbilitySettingEntry(abilityDefName, true, category,
             Mathf.Clamp(defaultCharges, MinCharges, MaxCharges));
@@ -144,7 +144,7 @@ public sealed class BottledAbilitySettings : ModSettings {
 
     private void RebuildCaches() {
         _abilityByName = new Dictionary<string, BottledAbilitySettingEntry>(StringComparer.Ordinal);
-        _colorByCategory = new Dictionary<BottledAbilityCategory, BottledAbilityCategoryColorEntry>();
+        _colorByCategory = new Dictionary<AbilityCategory, BottledAbilityCategoryColorEntry>();
 
         foreach (var entry in _abilityEntries) {
             entry.charges = Mathf.Clamp(entry.charges, MinCharges, MaxCharges);
@@ -181,7 +181,7 @@ public sealed class BottledAbilitySettings : ModSettings {
             foreach (var spec in specs) {
                 _abilityEntries.Add(new BottledAbilitySettingEntry(
                     spec.AbilityDefName,
-                    BottledAbilityCatalog.DefaultEnabled(),
+                    BottledAbilityCatalog.IsDefaultEnabled,
                     spec.DefaultCategory,
                     Mathf.Clamp(spec.DefaultCharges, MinCharges, MaxCharges)));
             }
@@ -193,7 +193,7 @@ public sealed class BottledAbilitySettings : ModSettings {
 
                 _abilityEntries.Add(new BottledAbilitySettingEntry(
                     spec.AbilityDefName,
-                    BottledAbilityCatalog.DefaultEnabled(),
+                    BottledAbilityCatalog.IsDefaultEnabled,
                     spec.DefaultCategory,
                     Mathf.Clamp(spec.DefaultCharges, MinCharges, MaxCharges)));
                 changed = true;

@@ -334,7 +334,7 @@ public sealed class BottledAbilitiesMod : Mod {
             currentCharges));
     }
 
-    private void OpenColorPicker(BottledAbilityCategory category) {
+    private void OpenColorPicker(AbilityCategory category) {
         Find.WindowStack.Add(new Dialog_ChooseColor(
             "VortexBA_SettingsColorPickerTitle".Translate(BottledAbilityCatalog.CategoryLabel(category)),
             Settings.GetColor(category),

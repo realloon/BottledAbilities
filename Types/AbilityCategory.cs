@@ -1,6 +1,6 @@
 namespace BottledAbilities;
 
-public enum BottledAbilityCategory {
+public enum AbilityCategory {
     Support,
     Control,
     Mobility,

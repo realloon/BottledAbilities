@@ -9,13 +9,13 @@ namespace BottledAbilities;
 public sealed class BottledAbilitySettingEntry : IExposable {
     public string abilityDefName = string.Empty;
     public bool enabled = true;
-    public BottledAbilityCategory category = BottledAbilityCategory.Utility;
+    public AbilityCategory category = AbilityCategory.Utility;
     public int charges = 1;
 
     [UsedImplicitly]
     public BottledAbilitySettingEntry() { }
 
-    public BottledAbilitySettingEntry(string abilityDefName, bool enabled, BottledAbilityCategory category,
+    public BottledAbilitySettingEntry(string abilityDefName, bool enabled, AbilityCategory category,
         int charges) {
         this.abilityDefName = abilityDefName;
         this.enabled = enabled;
@@ -27,7 +27,7 @@ public sealed class BottledAbilitySettingEntry : IExposable {
         Scribe_Values.Look(ref abilityDefName, "abilityDefName", string.Empty);
         abilityDefName ??= string.Empty;
         Scribe_Values.Look(ref enabled, "enabled", true);
-        Scribe_Values.Look(ref category, "category", BottledAbilityCategory.Utility);
+        Scribe_Values.Look(ref category, "category", AbilityCategory.Utility);
         Scribe_Values.Look(ref charges, "charges", 1);
         charges = Mathf.Clamp(charges, BottledAbilitySettings.MinCharges, BottledAbilitySettings.MaxCharges);
     }
