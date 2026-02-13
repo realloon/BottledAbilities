@@ -87,7 +87,7 @@ public static class BottledAbilityDefGenerator {
                 charges = charges
             }
         ];
-        def.descriptionHyperlinks = null;
+        def.descriptionHyperlinks = [abilityDef];
         def.ClearCachedData();
     }
 

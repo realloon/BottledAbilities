@@ -105,12 +105,9 @@ public static class BottledAbilityCatalog {
     };
 
     public static IReadOnlyList<BottledAbilitySpec> GetAvailableSpecs() {
-        var result = DefDatabase<AbilityDef>.AllDefsListForReading
+        return DefDatabase<AbilityDef>.AllDefsListForReading
             .Where(abilityDef => !abilityDef.defName.NullOrEmpty())
             .Select(BuildSpec)
-            .ToList();
-
-        return result
             .OrderBy(x => PackageLabel(x.PackageId), StringComparer.OrdinalIgnoreCase)
             .ThenBy(x => x.AbilityDefName, StringComparer.OrdinalIgnoreCase)
             .ToList();
