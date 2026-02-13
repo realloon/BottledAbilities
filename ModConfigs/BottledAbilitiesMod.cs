@@ -291,8 +291,11 @@ public sealed class BottledAbilitiesMod : Mod {
             label = "VortexBA_SettingsAbilityMissing".Translate(label);
         }
 
+        var wasEnabled = enabled;
         Widgets.CheckboxLabeled(checkboxRect, label, ref enabled);
-        Settings.SetEnabled(spec.AbilityDefName, enabled);
+        if (enabled != wasEnabled) {
+            Settings.SetEnabled(spec.AbilityDefName, enabled);
+        }
 
         var category = Settings.GetCategory(spec.AbilityDefName);
         var categoryButtonRect = new Rect(controlsStartX, rowRect.y, categoryWidth, RowHeight);

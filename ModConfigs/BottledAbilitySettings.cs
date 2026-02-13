@@ -17,11 +17,13 @@ public sealed class BottledAbilitySettings : ModSettings {
     private Dictionary<AbilityCategory, BottledAbilityCategoryColorEntry>? _colorByCategory;
 
     public void InitializeIfNeeded(IReadOnlyList<BottledAbilitySpec>? specs = null) {
-        _abilityEntries.RemoveAll(x => x == null || x.abilityDefName.NullOrEmpty());
-        _categoryColorEntries.RemoveAll(x => x == null);
+        if (_abilityByName is null || _colorByCategory is null) {
+            _abilityEntries.RemoveAll(x => x == null || x.abilityDefName.NullOrEmpty());
+            _categoryColorEntries.RemoveAll(x => x == null);
 
-        RebuildCaches();
-        EnsureColorEntries();
+            RebuildCaches();
+            EnsureColorEntries();
+        }
 
         if (specs is null) {
             return;
