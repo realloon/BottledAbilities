@@ -38,7 +38,7 @@ public class Hediff_BottledAbility : HediffWithComps {
         base.PostAdd(dinfo);
         if (_abilityDef is null || pawn.abilities is null) return;
 
-        if (pawn.abilities.GetAbility(_abilityDef) is null) {
+        if (pawn.abilities.GetAbility(_abilityDef, includeTemporary: true) is null) {
             pawn.abilities.GainAbility(_abilityDef);
         }
     }

@@ -26,7 +26,7 @@ public class CompBottledAbility : ThingComp {
 
     public Gizmo? GetInventoryGizmoExtra(Pawn pawn) {
         var doer = CachedDoer;
-        if (pawn.abilities.GetAbility(doer.abilityDef) is not null) return null;
+        if (pawn.abilities.GetAbility(doer.abilityDef, includeTemporary: true) is not null) return null;
 
         return new Command_Action {
             defaultLabel = "VortexBA_CompUse".Translate(parent.LabelNoCount),
