@@ -1,5 +1,4 @@
 using JetBrains.Annotations;
-using UnityEngine;
 using Verse;
 
 // ReSharper disable InconsistentNaming
@@ -29,6 +28,5 @@ public sealed class BottledAbilitySettingEntry : IExposable {
         Scribe_Values.Look(ref enabled, "enabled", true);
         Scribe_Values.Look(ref category, "category", AbilityCategory.Utility);
         Scribe_Values.Look(ref charges, "charges", 1);
-        charges = Mathf.Clamp(charges, BottledAbilitySettings.MinCharges, BottledAbilitySettings.MaxCharges);
     }
 }

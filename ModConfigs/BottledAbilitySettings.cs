@@ -35,11 +35,7 @@ public sealed class BottledAbilitySettings : ModSettings {
         _abilityEntries = [];
 
         foreach (var spec in specs) {
-            _abilityEntries.Add(new BottledAbilitySettingEntry(
-                spec.AbilityDefName,
-                BottledAbilityCatalog.IsDefaultEnabled,
-                spec.DefaultCategory,
-                Mathf.Clamp(spec.DefaultCharges, MinCharges, MaxCharges)));
+            _abilityEntries.Add(CreateEntryFromSpec(spec));
         }
 
         RebuildCaches();
@@ -87,12 +83,12 @@ public sealed class BottledAbilitySettings : ModSettings {
     public int GetCharges(string abilityDefName) {
         EnsureCaches();
         var value = _abilityByName!.GetValueOrDefault(abilityDefName)?.charges ?? 1;
-        return Mathf.Clamp(value, MinCharges, MaxCharges);
+        return ClampCharges(value);
     }
 
     public void SetCharges(string abilityDefName, int charges) {
         var entry = GetOrCreateAbilityEntry(abilityDefName);
-        var clamped = Mathf.Clamp(charges, MinCharges, MaxCharges);
+        var clamped = ClampCharges(charges);
 
         entry.charges = clamped;
     }
@@ -125,11 +121,11 @@ public sealed class BottledAbilitySettings : ModSettings {
             return entry;
         }
 
-        var category = BottledAbilityCatalog.FindSpec(abilityDefName)?.DefaultCategory ??
-                       AbilityCategory.Utility;
-        var defaultCharges = BottledAbilityCatalog.FindSpec(abilityDefName)?.DefaultCharges ?? 1;
+        var spec = BottledAbilityCatalog.FindSpec(abilityDefName);
+        var category = spec?.DefaultCategory ?? AbilityCategory.Utility;
+        var defaultCharges = spec?.DefaultCharges ?? 1;
         entry = new BottledAbilitySettingEntry(abilityDefName, true, category,
-            Mathf.Clamp(defaultCharges, MinCharges, MaxCharges));
+            ClampCharges(defaultCharges));
         _abilityEntries.Add(entry);
         _abilityByName[abilityDefName] = entry;
 
@@ -147,7 +143,7 @@ public sealed class BottledAbilitySettings : ModSettings {
         _colorByCategory = new Dictionary<AbilityCategory, BottledAbilityCategoryColorEntry>();
 
         foreach (var entry in _abilityEntries) {
-            entry.charges = Mathf.Clamp(entry.charges, MinCharges, MaxCharges);
+            entry.charges = ClampCharges(entry.charges);
             _abilityByName[entry.abilityDefName] = entry;
         }
 
@@ -176,28 +172,13 @@ public sealed class BottledAbilitySettings : ModSettings {
         if (specs.Count == 0) return;
 
         var changed = false;
+        var shouldSeedAll = _abilityEntries.Count == 0;
 
-        if (_abilityEntries.Count == 0) {
-            foreach (var spec in specs) {
-                _abilityEntries.Add(new BottledAbilitySettingEntry(
-                    spec.AbilityDefName,
-                    BottledAbilityCatalog.IsDefaultEnabled,
-                    spec.DefaultCategory,
-                    Mathf.Clamp(spec.DefaultCharges, MinCharges, MaxCharges)));
-            }
+        foreach (var spec in specs) {
+            if (!shouldSeedAll && _abilityByName!.ContainsKey(spec.AbilityDefName)) continue;
 
+            _abilityEntries.Add(CreateEntryFromSpec(spec));
             changed = true;
-        } else {
-            foreach (var spec in specs) {
-                if (_abilityByName!.ContainsKey(spec.AbilityDefName)) continue;
-
-                _abilityEntries.Add(new BottledAbilitySettingEntry(
-                    spec.AbilityDefName,
-                    BottledAbilityCatalog.IsDefaultEnabled,
-                    spec.DefaultCategory,
-                    Mathf.Clamp(spec.DefaultCharges, MinCharges, MaxCharges)));
-                changed = true;
-            }
         }
 
         if (changed) {
@@ -212,5 +193,17 @@ public sealed class BottledAbilitySettings : ModSettings {
         if (Scribe.mode == LoadSaveMode.PostLoadInit) {
             InitializeIfNeeded();
         }
+    }
+
+    private static int ClampCharges(int charges) {
+        return Mathf.Clamp(charges, MinCharges, MaxCharges);
+    }
+
+    private static BottledAbilitySettingEntry CreateEntryFromSpec(BottledAbilitySpec spec) {
+        return new BottledAbilitySettingEntry(
+            spec.AbilityDefName,
+            BottledAbilityCatalog.IsDefaultEnabled,
+            spec.DefaultCategory,
+            ClampCharges(spec.DefaultCharges));
     }
 }
