@@ -24,7 +24,6 @@ public sealed class BottledAbilitySettingEntry : IExposable {
 
     public void ExposeData() {
         Scribe_Values.Look(ref abilityDefName, "abilityDefName", string.Empty);
-        abilityDefName ??= string.Empty;
         Scribe_Values.Look(ref enabled, "enabled", true);
         Scribe_Values.Look(ref category, "category", AbilityCategory.Utility);
         Scribe_Values.Look(ref charges, "charges", 1);
