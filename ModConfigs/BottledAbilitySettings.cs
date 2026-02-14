@@ -6,7 +6,7 @@ namespace BottledAbilities;
 public sealed class BottledAbilitySettings : ModSettings {
     public const int MinCharges = 1;
     public const int MaxCharges = 9;
-    public const int DefaultTemporaryDurationTicks = 60000;
+    private const int DefaultTemporaryDurationTicks = 60000;
     public const int MinTemporaryDurationTicks = 2500;
     public const int MaxTemporaryDurationTicks = 900000;
 
