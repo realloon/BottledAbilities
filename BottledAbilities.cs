@@ -1,14 +1,18 @@
 ﻿using HarmonyLib;
-using JetBrains.Annotations;
-using Verse;
 
 namespace BottledAbilities;
 
-[UsedImplicitly]
-[StaticConstructorOnStartup]
 public static class BottledAbilities {
-    static BottledAbilities() {
-        var harmony = new Harmony("Vortex.BottledAbilities");
-        harmony.PatchAll();
+    private static readonly Lock PatchLock = new();
+    private static bool _patched;
+
+    public static void EnsurePatched() {
+        lock (PatchLock) {
+            if (_patched) return;
+
+            var harmony = new Harmony("Vortex.BottledAbilities");
+            harmony.PatchAll();
+            _patched = true;
+        }
     }
 }
