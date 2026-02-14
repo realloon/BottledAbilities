@@ -24,7 +24,18 @@ public class Hediff_BottledAbility : HediffWithComps {
 
     public override string Description => _abilityDef?.description ?? base.Description;
 
-    public override string LabelInBrackets => $"{_charges}x";
+    public override string LabelInBrackets {
+        get {
+            var chargesLabel = $"{_charges}x";
+            var baseLabel = base.LabelInBrackets;
+
+            if (baseLabel.NullOrEmpty()) {
+                return chargesLabel;
+            }
+
+            return $"{chargesLabel}, {baseLabel}";
+        }
+    }
 
     public override bool TryMergeWith(Hediff other) {
         if (other is not Hediff_BottledAbility otherBottled ||
@@ -36,6 +47,7 @@ public class Hediff_BottledAbility : HediffWithComps {
 
     public override void PostAdd(DamageInfo? dinfo) {
         base.PostAdd(dinfo);
+        ApplyDurationSettings();
         if (_abilityDef is null || pawn.abilities is null) return;
 
         if (pawn.abilities.GetAbility(_abilityDef, includeTemporary: true) is null) {
@@ -57,5 +69,15 @@ public class Hediff_BottledAbility : HediffWithComps {
         base.ExposeData();
         Scribe_Defs.Look(ref _abilityDef, "abilityDef");
         Scribe_Values.Look(ref _charges, "charges");
+    }
+
+    private void ApplyDurationSettings() {
+        var durationComp = GetComp<HediffComp_DisappearsDisableable>();
+        if (durationComp is null) return;
+
+        var settings = BottledAbilitiesMod.Settings;
+        settings.InitializeIfNeeded();
+        durationComp.SetDuration(settings.GetTemporaryDurationTicks());
+        durationComp.disabled = !settings.IsTemporaryDurationEnabled();
     }
 }

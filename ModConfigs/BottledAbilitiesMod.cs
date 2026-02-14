@@ -20,6 +20,7 @@ public sealed class BottledAbilitiesMod : Mod {
 
     private enum SettingsTab {
         AbilityJars,
+        TemporaryAbilities,
         CategoryColors
     }
 
@@ -31,7 +32,6 @@ public sealed class BottledAbilitiesMod : Mod {
     public static BottledAbilitySettings Settings { get; private set; } = new();
 
     public BottledAbilitiesMod(ModContentPack content) : base(content) {
-        BottledAbilities.EnsurePatched();
         Settings = GetSettings<BottledAbilitySettings>();
         Settings.InitializeIfNeeded();
     }
@@ -49,6 +49,9 @@ public sealed class BottledAbilitiesMod : Mod {
         if (_activeTab == SettingsTab.AbilityJars) {
             DrawAbilityOptions(ref y, inRect.width, inRect.height - y - BottomReservedHeight, specs);
             DrawResetAbilityDefaultsButton(ref y, inRect.width, specs);
+        } else if (_activeTab == SettingsTab.TemporaryAbilities) {
+            DrawTemporaryAbilitySettings(ref y, inRect.width, inRect.height - y - BottomReservedHeight);
+            DrawResetTemporaryDefaultsButton(ref y, inRect.width);
         } else if (_activeTab == SettingsTab.CategoryColors) {
             DrawCategoryColors(ref y, inRect.width);
             DrawResetColorDefaultsButton(ref y, inRect.width);
@@ -57,8 +60,9 @@ public sealed class BottledAbilitiesMod : Mod {
 
     private void DrawTabs(ref float y, float width) {
         var tabs = new[] {
-            (Tab: SettingsTab.AbilityJars, Label: "VortexBA_SettingsTabAbilityJars".Translate()),
-            (Tab: SettingsTab.CategoryColors, Label: "VortexBA_SettingsTabCategoryColors".Translate())
+            (Tab: SettingsTab.AbilityJars, Label: "VortexBA_SettingsTabAbilityList".Translate()),
+            (Tab: SettingsTab.TemporaryAbilities, Label: "VortexBA_SettingsTabExpiry".Translate()),
+            (Tab: SettingsTab.CategoryColors, Label: "VortexBA_SettingsTabCategory".Translate())
         };
 
         const float tabHeight = Grid * 4f;
@@ -98,6 +102,43 @@ public sealed class BottledAbilitiesMod : Mod {
         y += Grid * 5f;
     }
 
+    private void DrawTemporaryDurationControl(ref float y, float width) {
+        const float buttonWidth = Grid * 20f;
+        var rowRect = new Rect(0f, y, width, RowHeight);
+        var durationTicks = Settings.GetTemporaryDurationTicks();
+        var durationText = FormatDurationTicks(durationTicks);
+
+        Widgets.Label(new Rect(rowRect.x, rowRect.y + HalfGrid, rowRect.width - buttonWidth - Grid, Grid * 3f),
+            "VortexBA_SettingsTemporaryDurationLabel".Translate(durationText));
+
+        var buttonRect = new Rect(rowRect.xMax - buttonWidth, rowRect.y, buttonWidth, ButtonHeight);
+        if (Widgets.ButtonText(buttonRect, "VortexBA_SettingsTemporaryDurationButton".Translate())) {
+            OpenTemporaryDurationSlider(durationTicks);
+        }
+
+        y += RowHeight + Grid;
+    }
+
+    private void DrawTemporaryAbilitySettings(ref float y, float width, float availableHeight) {
+        var startY = y;
+        var enabled = Settings.IsTemporaryDurationEnabled();
+        var enabledRect = new Rect(0f, y, width, RowHeight);
+        var wasEnabled = enabled;
+        Widgets.CheckboxLabeled(enabledRect, "VortexBA_SettingsTemporaryExpiryEnabledLabel".Translate(), ref enabled);
+        if (enabled != wasEnabled) {
+            Settings.SetTemporaryDurationEnabled(enabled);
+            WriteSettings();
+        }
+
+        y += RowHeight + Grid;
+        if (enabled) {
+            DrawTemporaryDurationControl(ref y, width);
+        }
+
+        var usedHeight = y - startY;
+        y = startY + Mathf.Max(usedHeight, Mathf.Max(0f, availableHeight));
+    }
+
     private void DrawResetAbilityDefaultsButton(ref float y, float width, IReadOnlyList<BottledAbilitySpec> specs) {
         y += Grid * 2f;
 
@@ -121,6 +162,21 @@ public sealed class BottledAbilitiesMod : Mod {
                 "VortexBA_SettingsResetColorsConfirm".Translate(),
                 delegate {
                     Settings.ResetCategoryColorsToDefault();
+                    WriteSettings();
+                }));
+        }
+
+        y += ButtonHeight + HalfGrid;
+    }
+
+    private void DrawResetTemporaryDefaultsButton(ref float y, float width) {
+        y += Grid * 2f;
+
+        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight), "VortexBA_SettingsResetTemporaryButton".Translate())) {
+            Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
+                "VortexBA_SettingsResetTemporaryConfirm".Translate(),
+                delegate {
+                    Settings.ResetTemporaryOptionsToDefault();
                     WriteSettings();
                 }));
         }
@@ -337,6 +393,18 @@ public sealed class BottledAbilitiesMod : Mod {
             currentCharges));
     }
 
+    private void OpenTemporaryDurationSlider(int currentDurationTicks) {
+        Find.WindowStack.Add(new Dialog_Slider(
+            val => "VortexBA_SettingsTemporaryDurationSliderLabel".Translate(FormatDurationTicks(val)),
+            BottledAbilitySettings.MinTemporaryDurationTicks,
+            BottledAbilitySettings.MaxTemporaryDurationTicks,
+            delegate(int selected) {
+                Settings.SetTemporaryDurationTicks(selected);
+                WriteSettings();
+            },
+            currentDurationTicks));
+    }
+
     private void OpenColorPicker(AbilityCategory category) {
         Find.WindowStack.Add(new Dialog_ChooseColor(
             "VortexBA_SettingsColorPickerTitle".Translate(BottledAbilityCatalog.CategoryLabel(category)),
@@ -369,5 +437,10 @@ public sealed class BottledAbilitiesMod : Mod {
         }
 
         return colors;
+    }
+
+    private static string FormatDurationTicks(int ticks) {
+        return ticks.ToStringTicksToPeriod(allowSeconds: true, shortForm: true, canUseDecimals: true,
+            allowYears: true, canUseDecimalsShortForm: true);
     }
 }
