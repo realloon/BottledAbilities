@@ -79,7 +79,7 @@ public static class BottledAbilityDefGenerator {
             : abilityDef.label;
 
         def.label = "VortexBA_GeneratedJarLabel".Translate(abilityLabel);
-        def.description = "VortexBA_GeneratedJarDescription".Translate(abilityLabel.CapitalizeFirst()).ToString();
+        def.description = "VortexBA_GeneratedJarDescription".Translate(abilityLabel.CapitalizeFirst());
         def.graphicData.color = color;
         def.ingestible.outcomeDoers = [
             new IngestionOutcomeDoer_GiveBottledAbility {
