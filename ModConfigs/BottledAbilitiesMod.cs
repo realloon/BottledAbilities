@@ -34,6 +34,7 @@ public sealed class BottledAbilitiesMod : Mod {
     public override string SettingsCategory() => "VortexBA_SettingsCategory".Translate();
 
     public BottledAbilitiesMod(ModContentPack content) : base(content) {
+        BottledAbilities.EnsurePatched();
         Settings = GetSettings<BottledAbilitySettings>();
         Settings.InitializeIfNeeded();
     }
@@ -341,30 +342,34 @@ public sealed class BottledAbilitiesMod : Mod {
     private void DrawAbilityColumnHeaders(float x, float y, float rowWidth) {
         ResolveAbilityControlLayout(rowWidth, out var controlsStart, out var categoryWidth, out var chargeButtonWidth);
 
-        var abilityStartX = x;
+        var enabledHeader = "VortexBA_SettingsEnabledHeader".Translate();
+        var enableWidth = Mathf.Max(Grid * 6f, Text.CalcSize(enabledHeader).x + Grid);
         var enableRightX = x + controlsStart - Grid;
         var enableRect = new Rect(
-            Mathf.Max(abilityStartX, enableRightX - Grid * 6f),
+            Mathf.Max(x, enableRightX - enableWidth),
             y,
-            Grid * 6f,
+            enableWidth,
             Grid * 3f);
         var abilityRect = new Rect(
-            abilityStartX,
+            x,
             y,
-            Mathf.Max(Grid * 6f, enableRect.x - abilityStartX - Grid),
+            Mathf.Max(Grid * 6f, enableRect.x - x - Grid),
             Grid * 3f);
         var categoryRect = new Rect(x + controlsStart, y, categoryWidth, Grid * 3f);
         var chargeRect = new Rect(categoryRect.xMax + Grid, y, chargeButtonWidth, Grid * 3f);
 
         var oldAnchor = Text.Anchor;
+        var oldWordWrap = Text.WordWrap;
+        Text.WordWrap = false;
         Text.Anchor = TextAnchor.MiddleRight;
-        Widgets.Label(enableRect, "VortexBA_SettingsEnabledHeader".Translate());
+        Widgets.Label(enableRect, enabledHeader);
         Text.Anchor = TextAnchor.MiddleLeft;
         Widgets.Label(abilityRect, $"<b>{"VortexBA_SettingsAbilitiesHeader".Translate()}</b>");
         Text.Anchor = TextAnchor.MiddleCenter;
         Widgets.Label(categoryRect, "VortexBA_SettingsCategoryColumnHeader".Translate());
         Widgets.Label(chargeRect, "VortexBA_SettingsCapacityHeader".Translate());
         Text.Anchor = oldAnchor;
+        Text.WordWrap = oldWordWrap;
     }
 
     private void DrawAbilityRow(BottledAbilitySpec spec, float x, ref float y, float width) {
@@ -382,6 +387,7 @@ public sealed class BottledAbilitiesMod : Mod {
         if (missing) {
             label = "VortexBA_SettingsAbilityMissing".Translate(label);
         }
+
         if (Prefs.DevMode) {
             label = $"{label} [{spec.AbilityDefName}]";
         }
