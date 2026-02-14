@@ -4,7 +4,7 @@ using Verse;
 
 namespace BottledAbilities;
 
-public static class BottledAbilityDefGenerator {
+public static class DefGenerator {
     private static readonly System.Reflection.MethodInfo? RemoveThingDefMethod =
         AccessTools.Method(typeof(DefDatabase<ThingDef>), "Remove");
 
@@ -39,7 +39,7 @@ public static class BottledAbilityDefGenerator {
 
             if (existing is null) {
                 var generated = CreateJarDef(jarCategory, abilityDef, spec, color, charges);
-                DefGenerator.AddImpliedDef(generated, hotReload);
+                RimWorld.DefGenerator.AddImpliedDef(generated, hotReload);
             } else {
                 ConfigureJarDef(existing, jarCategory, abilityDef, color, charges);
             }
