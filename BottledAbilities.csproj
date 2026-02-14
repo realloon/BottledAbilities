@@ -32,6 +32,7 @@
       <None Remove=".gitignore" />
       <None Remove="AGENTS.md" />
       <None Remove="CLAUDE.md" />
+      <None Remove="README.md" />
     </ItemGroup>
 
 </Project>
