@@ -1,11 +1,12 @@
 using JetBrains.Annotations;
-using RimWorld;
 using Verse;
 using Verse.AI;
+using BottledAbilities.Utils;
 
 namespace BottledAbilities;
 
 [UsedImplicitly]
+// ReSharper disable once InconsistentNaming
 public class JobDriver_InfuseAbilityIntoJar : JobDriver {
     private const int InfuseTicks = 240;
     private const int ReserveStackCount = 1;
