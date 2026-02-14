@@ -31,12 +31,15 @@ public sealed class BottledAbilitiesMod : Mod {
 
     public static BottledAbilitySettings Settings { get; private set; } = new();
 
+    public override string SettingsCategory() => "VortexBA_SettingsCategory".Translate();
+
+    private static bool ShouldShowRestartHint(SettingsTab tab) =>
+        tab is SettingsTab.AbilityJars or SettingsTab.CategoryColors;
+
     public BottledAbilitiesMod(ModContentPack content) : base(content) {
         Settings = GetSettings<BottledAbilitySettings>();
         Settings.InitializeIfNeeded();
     }
-
-    public override string SettingsCategory() => "VortexBA_SettingsCategory".Translate();
 
     public override void DoSettingsWindowContents(Rect inRect) {
         var specs = BottledAbilityCatalog.GetAvailableSpecs();
@@ -44,7 +47,9 @@ public sealed class BottledAbilitiesMod : Mod {
 
         var y = TopPadding;
         DrawTabs(ref y, inRect.width);
-        DrawPageHint(ref y, inRect.width);
+        if (ShouldShowRestartHint(_activeTab)) {
+            DrawPageHint(ref y, inRect.width);
+        }
 
         if (_activeTab == SettingsTab.AbilityJars) {
             DrawAbilityOptions(ref y, inRect.width, inRect.height - y - BottomReservedHeight, specs);
@@ -142,7 +147,8 @@ public sealed class BottledAbilitiesMod : Mod {
     private void DrawResetAbilityDefaultsButton(ref float y, float width, IReadOnlyList<BottledAbilitySpec> specs) {
         y += Grid * 2f;
 
-        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight), "VortexBA_SettingsResetAbilitiesButton".Translate())) {
+        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight),
+                "VortexBA_SettingsResetAbilitiesButton".Translate())) {
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
                 "VortexBA_SettingsResetAbilitiesConfirm".Translate(),
                 delegate {
@@ -157,7 +163,8 @@ public sealed class BottledAbilitiesMod : Mod {
     private void DrawResetColorDefaultsButton(ref float y, float width) {
         y += Grid * 2f;
 
-        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight), "VortexBA_SettingsResetColorsButton".Translate())) {
+        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight),
+                "VortexBA_SettingsResetColorsButton".Translate())) {
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
                 "VortexBA_SettingsResetColorsConfirm".Translate(),
                 delegate {
@@ -172,7 +179,8 @@ public sealed class BottledAbilitiesMod : Mod {
     private void DrawResetTemporaryDefaultsButton(ref float y, float width) {
         y += Grid * 2f;
 
-        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight), "VortexBA_SettingsResetTemporaryButton".Translate())) {
+        if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight),
+                "VortexBA_SettingsResetTemporaryButton".Translate())) {
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
                 "VortexBA_SettingsResetTemporaryConfirm".Translate(),
                 delegate {
@@ -225,8 +233,10 @@ public sealed class BottledAbilitiesMod : Mod {
         var rightColumnWidth = Mathf.Max(240f, width - leftColumnWidth - columnGap);
         var columnsHeight = Mathf.Max(224f, availableHeight);
 
-        Widgets.Label(new Rect(0f, y, leftColumnWidth, Grid * 3f), $"<b>{"VortexBA_SettingsSourceHeader".Translate()}</b>");
-        Widgets.Label(new Rect(rightColumnX, y, rightColumnWidth, Grid * 3f), $"<b>{"VortexBA_SettingsAbilitiesHeader".Translate()}</b>");
+        Widgets.Label(new Rect(0f, y, leftColumnWidth, Grid * 3f),
+            $"<b>{"VortexBA_SettingsSourceHeader".Translate()}</b>");
+        Widgets.Label(new Rect(rightColumnX, y, rightColumnWidth, Grid * 3f),
+            $"<b>{"VortexBA_SettingsAbilitiesHeader".Translate()}</b>");
         y += Grid * 3f + HalfGrid;
 
         DrawPackageSelectorColumn(0f, y, leftColumnWidth, columnsHeight, packageIds);
@@ -245,7 +255,8 @@ public sealed class BottledAbilitiesMod : Mod {
 
         var rowY = HalfGrid;
         if (packageIds.Count == 0) {
-            Widgets.Label(new Rect(Grid, rowY + HalfGrid, viewRect.width - Grid * 2f, Grid * 3f), "VortexBA_SettingsNoLoadedMods".Translate());
+            Widgets.Label(new Rect(Grid, rowY + HalfGrid, viewRect.width - Grid * 2f, Grid * 3f),
+                "VortexBA_SettingsNoLoadedMods".Translate());
             Widgets.EndScrollView();
             return;
         }
@@ -282,7 +293,8 @@ public sealed class BottledAbilitiesMod : Mod {
         Widgets.BeginScrollView(contentRect, ref _abilityListScrollPosition, viewRect);
 
         if (specs.Count == 0) {
-            Widgets.Label(new Rect(Grid, Grid, viewRect.width - Grid * 2f, Grid * 3f), "VortexBA_SettingsNoAbilitiesInPackage".Translate());
+            Widgets.Label(new Rect(Grid, Grid, viewRect.width - Grid * 2f, Grid * 3f),
+                "VortexBA_SettingsNoAbilitiesInPackage".Translate());
             Widgets.EndScrollView();
             return;
         }
@@ -340,7 +352,8 @@ public sealed class BottledAbilitiesMod : Mod {
         }
 
         var controlsStartX = rowRect.x + Mathf.Max(120f, width - reservedWidth);
-        var checkboxRect = new Rect(rowRect.x, rowRect.y, Mathf.Max(120f, controlsStartX - rowRect.x - Grid), RowHeight);
+        var checkboxRect = new Rect(rowRect.x, rowRect.y, Mathf.Max(120f, controlsStartX - rowRect.x - Grid),
+            RowHeight);
 
         var label = abilityDef?.label ?? GenText.SplitCamelCase(spec.AbilityDefName);
         if (missing) {
