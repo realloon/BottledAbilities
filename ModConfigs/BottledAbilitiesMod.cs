@@ -151,9 +151,9 @@ public sealed class BottledAbilitiesMod : Mod {
         y += Grid * 2f;
 
         if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight),
-                "VortexBA_SettingsResetAbilitiesButton".Translate())) {
+                "VortexBA_SettingsResetAbilityListButton".Translate())) {
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-                "VortexBA_SettingsResetAbilitiesConfirm".Translate(),
+                "VortexBA_SettingsResetAbilityListConfirm".Translate(),
                 delegate {
                     Settings.ResetAbilityOptionsToDefault(specs);
                     WriteSettings();
@@ -183,9 +183,9 @@ public sealed class BottledAbilitiesMod : Mod {
         y += Grid * 2f;
 
         if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight),
-                "VortexBA_SettingsResetTemporaryButton".Translate())) {
+                "VortexBA_SettingsResetTemporaryExpiryButton".Translate())) {
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-                "VortexBA_SettingsResetTemporaryConfirm".Translate(),
+                "VortexBA_SettingsResetTemporaryExpiryConfirm".Translate(),
                 delegate {
                     Settings.ResetTemporaryOptionsToDefault();
                     WriteSettings();
@@ -381,6 +381,9 @@ public sealed class BottledAbilitiesMod : Mod {
         var label = abilityDef?.label ?? GenText.SplitCamelCase(spec.AbilityDefName);
         if (missing) {
             label = "VortexBA_SettingsAbilityMissing".Translate(label);
+        }
+        if (Prefs.DevMode) {
+            label = $"{label} [{spec.AbilityDefName}]";
         }
 
         var wasEnabled = enabled;
