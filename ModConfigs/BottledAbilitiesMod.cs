@@ -33,9 +33,6 @@ public sealed class BottledAbilitiesMod : Mod {
 
     public override string SettingsCategory() => "VortexBA_SettingsCategory".Translate();
 
-    private static bool ShouldShowRestartHint(SettingsTab tab) =>
-        tab is SettingsTab.AbilityJars or SettingsTab.CategoryColors;
-
     public BottledAbilitiesMod(ModContentPack content) : base(content) {
         Settings = GetSettings<BottledAbilitySettings>();
         Settings.InitializeIfNeeded();
@@ -47,8 +44,14 @@ public sealed class BottledAbilitiesMod : Mod {
 
         var y = TopPadding;
         DrawTabs(ref y, inRect.width);
-        if (ShouldShowRestartHint(_activeTab)) {
-            DrawPageHint(ref y, inRect.width);
+        var pageHintText = _activeTab switch {
+            SettingsTab.AbilityJars =>
+                $"{ "VortexBA_SettingsPageHintCommon".Translate() } { "VortexBA_SettingsPageHintDisabledRemoval".Translate() }",
+            SettingsTab.CategoryColors => "VortexBA_SettingsPageHintCommon".Translate().ToString(),
+            _ => null
+        };
+        if (pageHintText is not null) {
+            DrawPageHint(ref y, inRect.width, pageHintText);
         }
 
         if (_activeTab == SettingsTab.AbilityJars) {
@@ -101,9 +104,9 @@ public sealed class BottledAbilitiesMod : Mod {
         y += TabsAreaHeight;
     }
 
-    private static void DrawPageHint(ref float y, float width) {
+    private static void DrawPageHint(ref float y, float width, string hintText) {
         var hintRect = new Rect(0f, y, width, Grid * 4f);
-        Widgets.Label(hintRect, "VortexBA_SettingsPageHint".Translate());
+        Widgets.Label(hintRect, hintText);
         y += Grid * 5f;
     }
 
@@ -232,11 +235,11 @@ public sealed class BottledAbilitiesMod : Mod {
         var rightColumnX = leftColumnWidth + columnGap;
         var rightColumnWidth = Mathf.Max(240f, width - leftColumnWidth - columnGap);
         var columnsHeight = Mathf.Max(224f, availableHeight);
+        var abilityRowWidth = rightColumnWidth - Grid * 2f - QuarterGrid;
 
         Widgets.Label(new Rect(0f, y, leftColumnWidth, Grid * 3f),
             $"<b>{"VortexBA_SettingsSourceHeader".Translate()}</b>");
-        Widgets.Label(new Rect(rightColumnX, y, rightColumnWidth, Grid * 3f),
-            $"<b>{"VortexBA_SettingsAbilitiesHeader".Translate()}</b>");
+        DrawAbilityColumnHeaders(rightColumnX, y, abilityRowWidth);
         y += Grid * 3f + HalfGrid;
 
         DrawPackageSelectorColumn(0f, y, leftColumnWidth, columnsHeight, packageIds);
@@ -335,23 +338,43 @@ public sealed class BottledAbilitiesMod : Mod {
             .ToList();
     }
 
+    private void DrawAbilityColumnHeaders(float x, float y, float rowWidth) {
+        ResolveAbilityControlLayout(rowWidth, out var controlsStart, out var categoryWidth, out var chargeButtonWidth);
+
+        var abilityStartX = x;
+        var enableRightX = x + controlsStart - Grid;
+        var enableRect = new Rect(
+            Mathf.Max(abilityStartX, enableRightX - Grid * 6f),
+            y,
+            Grid * 6f,
+            Grid * 3f);
+        var abilityRect = new Rect(
+            abilityStartX,
+            y,
+            Mathf.Max(Grid * 6f, enableRect.x - abilityStartX - Grid),
+            Grid * 3f);
+        var categoryRect = new Rect(x + controlsStart, y, categoryWidth, Grid * 3f);
+        var chargeRect = new Rect(categoryRect.xMax + Grid, y, chargeButtonWidth, Grid * 3f);
+
+        var oldAnchor = Text.Anchor;
+        Text.Anchor = TextAnchor.MiddleRight;
+        Widgets.Label(enableRect, "VortexBA_SettingsEnabledHeader".Translate());
+        Text.Anchor = TextAnchor.MiddleLeft;
+        Widgets.Label(abilityRect, $"<b>{"VortexBA_SettingsAbilitiesHeader".Translate()}</b>");
+        Text.Anchor = TextAnchor.MiddleCenter;
+        Widgets.Label(categoryRect, "VortexBA_SettingsCategoryColumnHeader".Translate());
+        Widgets.Label(chargeRect, "VortexBA_SettingsCapacityHeader".Translate());
+        Text.Anchor = oldAnchor;
+    }
+
     private void DrawAbilityRow(BottledAbilitySpec spec, float x, ref float y, float width) {
         var rowRect = new Rect(x, y, width, RowHeight);
         var abilityDef = DefDatabase<AbilityDef>.GetNamedSilentFail(spec.AbilityDefName);
         var missing = abilityDef is null;
 
         var enabled = Settings.IsEnabled(spec.AbilityDefName);
-        var categoryWidth = Grid * 18f;
-        var chargeButtonWidth = Grid * 7f;
-        var reservedWidth = categoryWidth + Grid + chargeButtonWidth;
-
-        if (reservedWidth > width * 0.55f) {
-            categoryWidth = Grid * 14f;
-            chargeButtonWidth = Grid * 6f;
-            reservedWidth = categoryWidth + Grid + chargeButtonWidth;
-        }
-
-        var controlsStartX = rowRect.x + Mathf.Max(120f, width - reservedWidth);
+        ResolveAbilityControlLayout(width, out var controlsStart, out var categoryWidth, out var chargeButtonWidth);
+        var controlsStartX = rowRect.x + controlsStart;
         var checkboxRect = new Rect(rowRect.x, rowRect.y, Mathf.Max(120f, controlsStartX - rowRect.x - Grid),
             RowHeight);
 
@@ -379,6 +402,21 @@ public sealed class BottledAbilitiesMod : Mod {
         }
 
         y += RowHeight;
+    }
+
+    private static void ResolveAbilityControlLayout(float width, out float controlsStart, out float categoryWidth,
+        out float chargeButtonWidth) {
+        categoryWidth = Grid * 18f;
+        chargeButtonWidth = Grid * 7f;
+        var reservedWidth = categoryWidth + Grid + chargeButtonWidth;
+
+        if (reservedWidth > width * 0.55f) {
+            categoryWidth = Grid * 14f;
+            chargeButtonWidth = Grid * 6f;
+            reservedWidth = categoryWidth + Grid + chargeButtonWidth;
+        }
+
+        controlsStart = Mathf.Max(120f, width - reservedWidth);
     }
 
     private void OpenCategoryMenu(string abilityDefName) {
