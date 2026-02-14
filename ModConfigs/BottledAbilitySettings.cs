@@ -78,7 +78,8 @@ public sealed class BottledAbilitySettings : ModSettings {
 
     public bool IsEnabled(string abilityDefName) {
         EnsureCaches();
-        return _abilityByName!.GetValueOrDefault(abilityDefName)?.enabled ?? true;
+        return _abilityByName!.GetValueOrDefault(abilityDefName)?.enabled ??
+               BottledAbilityCatalog.FindSpec(abilityDefName)?.DefaultEnabled ?? true;
     }
 
     public void SetEnabled(string abilityDefName, bool enabled) {
@@ -147,7 +148,8 @@ public sealed class BottledAbilitySettings : ModSettings {
         var spec = BottledAbilityCatalog.FindSpec(abilityDefName);
         var category = spec?.DefaultCategory ?? AbilityCategory.Utility;
         var defaultCharges = spec?.DefaultCharges ?? 1;
-        entry = new BottledAbilitySettingEntry(abilityDefName, true, category,
+        var defaultEnabled = spec?.DefaultEnabled ?? true;
+        entry = new BottledAbilitySettingEntry(abilityDefName, defaultEnabled, category,
             ClampCharges(defaultCharges));
         _abilityEntries.Add(entry);
         _abilityByName[abilityDefName] = entry;
@@ -231,7 +233,7 @@ public sealed class BottledAbilitySettings : ModSettings {
     private static BottledAbilitySettingEntry CreateEntryFromSpec(BottledAbilitySpec spec) {
         return new BottledAbilitySettingEntry(
             spec.AbilityDefName,
-            BottledAbilityCatalog.IsDefaultEnabled,
+            spec.DefaultEnabled,
             spec.DefaultCategory,
             ClampCharges(spec.DefaultCharges));
     }
