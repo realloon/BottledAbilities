@@ -116,7 +116,7 @@ public static class DefGenerator {
         }
 
         def.tradeTags = ["ExoticMisc"];
-        def.thingSetMakerTags = ["RewardStandardLowFreq", "SkillNeurotrainer"];
+        def.thingSetMakerTags = ["RewardStandardMidFreq", "SkillNeurotrainer"];
         def.statBases = BuildBaseStatBases();
         def.comps = BuildBaseComps();
         def.graphicData = BuildBaseGraphicData();
