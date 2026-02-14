@@ -30,11 +30,13 @@ public sealed class BottledAbilitiesMod : Mod {
     private Vector2 _abilityListScrollPosition;
 
     public static BottledAbilitySettings Settings { get; private set; } = new();
+    public static ModContentPack? ContentPack { get; private set; }
 
     public override string SettingsCategory() => "VortexBA_SettingsCategory".Translate();
 
     public BottledAbilitiesMod(ModContentPack content) : base(content) {
         BottledAbilities.EnsurePatched();
+        ContentPack = content;
         Settings = GetSettings<BottledAbilitySettings>();
         Settings.InitializeIfNeeded();
     }
