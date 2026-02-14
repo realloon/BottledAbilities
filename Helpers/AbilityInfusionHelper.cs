@@ -2,28 +2,32 @@ using HarmonyLib;
 using RimWorld;
 using Verse;
 
-namespace BottledAbilities;
+namespace BottledAbilities.Utils;
 
 internal static class AbilityInfusionUtility {
     public static bool TryInfuse(Pawn pawn, Ability ability, Thing emptyJar) {
-        if (pawn is null || ability is null || emptyJar is null) return false;
         if (ability.pawn != pawn) return false;
 
         var settings = BottledAbilitiesMod.Settings;
         settings.InitializeIfNeeded();
 
         var def = ability.def;
-        if (def is null) return Fail(pawn, "VortexBA_MessageInfuseFailed".Translate("VortexBA_MissingAbilityDef".Translate()));
+        if (def is null) {
+            return Fail(pawn, "VortexBA_MessageInfuseFailed".Translate("VortexBA_MissingAbilityDef".Translate()));
+        }
+
         var abilityLabel = def.label.NullOrEmpty() ? GenText.SplitCamelCase(def.defName) : def.label;
 
         if (!settings.IsEnabled(def.defName)) {
-            return Fail(pawn, "VortexBA_MessageInfuseFailed".Translate("VortexBA_AbilityDisabledInSettings".Translate(abilityLabel)));
+            return Fail(pawn,
+                "VortexBA_MessageInfuseFailed".Translate("VortexBA_AbilityDisabledInSettings".Translate(abilityLabel)));
         }
 
         // Exclude abilities that are temporarily granted via bottled abilities (Hediff_BottledAbility).
         if (pawn.health?.hediffSet?.hediffs?.OfType<Hediff_BottledAbility>()
                 .Any(h => h.AbilityDef == def) == true) {
-            return Fail(pawn, "VortexBA_MessageInfuseFailed".Translate("VortexBA_AbilityIsTemporary".Translate(abilityLabel)));
+            return Fail(pawn,
+                "VortexBA_MessageInfuseFailed".Translate("VortexBA_AbilityIsTemporary".Translate(abilityLabel)));
         }
 
         var jarDefName = $"VortexBA_{def.defName}";
@@ -47,11 +51,13 @@ internal static class AbilityInfusionUtility {
         // Deduct resource costs (subset): Psyfocus/Entropy, Hemogen.
         if (def.IsPsycast) {
             if (pawn.psychicEntropy is null) {
-                return Fail(pawn, "VortexBA_MessageInfuseFailed".Translate("VortexBA_MissingPsychicEntropy".Translate()));
+                return Fail(pawn,
+                    "VortexBA_MessageInfuseFailed".Translate("VortexBA_MissingPsychicEntropy".Translate()));
             }
 
             if (def.EntropyGain > float.Epsilon && !pawn.psychicEntropy.TryAddEntropy(def.EntropyGain)) {
-                return Fail(pawn, "VortexBA_MessageInfuseFailed".Translate("VortexBA_NotEnoughEntropyRoom".Translate()));
+                return Fail(pawn,
+                    "VortexBA_MessageInfuseFailed".Translate("VortexBA_NotEnoughEntropyRoom".Translate()));
             }
 
             var psyfocusCost = ability.FinalPsyfocusCost(new LocalTargetInfo(pawn));
@@ -93,13 +99,15 @@ internal static class AbilityInfusionUtility {
             placed.SetForbidden(true, warnOnFail: false);
         }
 
-        Messages.Message("VortexBA_MessageInfused".Translate(pawn.LabelShort, abilityLabel), pawn, MessageTypeDefOf.PositiveEvent);
+        Messages.Message("VortexBA_MessageInfused".Translate(pawn.LabelShort, abilityLabel), pawn,
+            MessageTypeDefOf.PositiveEvent);
         return true;
     }
 
-    private static bool InvokePreActivate(System.Reflection.MethodInfo preActivate, Ability ability, Thing targetThing) {
+    private static bool InvokePreActivate(System.Reflection.MethodInfo preActivate, Ability ability,
+        Thing targetThing) {
         try {
-            preActivate.Invoke(ability, [new LocalTargetInfo?(new LocalTargetInfo(targetThing))]);
+            preActivate.Invoke(ability, [new LocalTargetInfo(targetThing)]);
             return true;
         } catch (Exception e) {
             Log.Error($"[BottledAbilities] Failed to invoke PreActivate: {e}");
@@ -109,12 +117,12 @@ internal static class AbilityInfusionUtility {
 
     private static void ConsumeOne(Thing emptyJar) {
         if (emptyJar.stackCount <= 1) {
-            emptyJar.Destroy(DestroyMode.Vanish);
+            emptyJar.Destroy();
             return;
         }
 
         var consumed = emptyJar.SplitOff(1);
-        consumed.Destroy(DestroyMode.Vanish);
+        consumed.Destroy();
     }
 
     private static bool Fail(Pawn pawn, TaggedString reason) {
