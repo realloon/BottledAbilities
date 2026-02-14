@@ -105,7 +105,7 @@ public sealed class BottledAbilitiesMod : Mod {
     private void DrawTemporaryDurationControl(ref float y, float width) {
         const float buttonWidth = Grid * 20f;
         var rowRect = new Rect(0f, y, width, RowHeight);
-        var durationTicks = Settings.GetTemporaryDurationTicks();
+        var durationTicks = Settings.TemporaryDurationTicks;
         var durationText = FormatDurationTicks(durationTicks);
 
         Widgets.Label(new Rect(rowRect.x, rowRect.y + HalfGrid, rowRect.width - buttonWidth - Grid, Grid * 3f),
@@ -121,12 +121,12 @@ public sealed class BottledAbilitiesMod : Mod {
 
     private void DrawTemporaryAbilitySettings(ref float y, float width, float availableHeight) {
         var startY = y;
-        var enabled = Settings.IsTemporaryDurationEnabled();
+        var enabled = Settings.IsTemporaryDurationEnabled;
         var enabledRect = new Rect(0f, y, width, RowHeight);
         var wasEnabled = enabled;
         Widgets.CheckboxLabeled(enabledRect, "VortexBA_SettingsTemporaryExpiryEnabledLabel".Translate(), ref enabled);
         if (enabled != wasEnabled) {
-            Settings.SetTemporaryDurationEnabled(enabled);
+            Settings.IsTemporaryDurationEnabled = enabled;
             WriteSettings();
         }
 
@@ -399,7 +399,7 @@ public sealed class BottledAbilitiesMod : Mod {
             BottledAbilitySettings.MinTemporaryDurationTicks,
             BottledAbilitySettings.MaxTemporaryDurationTicks,
             delegate(int selected) {
-                Settings.SetTemporaryDurationTicks(selected);
+                Settings.TemporaryDurationTicks = selected;
                 WriteSettings();
             },
             currentDurationTicks));

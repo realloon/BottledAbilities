@@ -77,7 +77,7 @@ public class Hediff_BottledAbility : HediffWithComps {
 
         var settings = BottledAbilitiesMod.Settings;
         settings.InitializeIfNeeded();
-        durationComp.SetDuration(settings.GetTemporaryDurationTicks());
-        durationComp.disabled = !settings.IsTemporaryDurationEnabled();
+        durationComp.SetDuration(settings.TemporaryDurationTicks);
+        durationComp.disabled = !settings.IsTemporaryDurationEnabled;
     }
 }

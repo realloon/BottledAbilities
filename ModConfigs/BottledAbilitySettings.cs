@@ -6,9 +6,14 @@ namespace BottledAbilities;
 public sealed class BottledAbilitySettings : ModSettings {
     public const int MinCharges = 1;
     public const int MaxCharges = 9;
+    public const int DefaultTemporaryDurationTicks = 60000;
+    public const int MinTemporaryDurationTicks = 2500;
+    public const int MaxTemporaryDurationTicks = 900000;
 
     private List<BottledAbilitySettingEntry> _abilityEntries = [];
     private List<BottledAbilityCategoryColorEntry> _categoryColorEntries = [];
+    private bool _temporaryDurationEnabled = true;
+    private int _temporaryDurationTicks = DefaultTemporaryDurationTicks;
 
     [Unsaved]
     private Dictionary<string, BottledAbilitySettingEntry>? _abilityByName;
@@ -17,6 +22,8 @@ public sealed class BottledAbilitySettings : ModSettings {
     private Dictionary<AbilityCategory, BottledAbilityCategoryColorEntry>? _colorByCategory;
 
     public void InitializeIfNeeded(IReadOnlyList<BottledAbilitySpec>? specs = null) {
+        _temporaryDurationTicks = ClampTemporaryDurationTicks(_temporaryDurationTicks);
+
         if (_abilityByName is null || _colorByCategory is null) {
             _abilityEntries.RemoveAll(x => x == null || x.abilityDefName.NullOrEmpty());
             _categoryColorEntries.RemoveAll(x => x == null);
@@ -53,6 +60,20 @@ public sealed class BottledAbilitySettings : ModSettings {
         }
 
         RebuildCaches();
+    }
+
+    public bool IsTemporaryDurationEnabled {
+        get => _temporaryDurationEnabled;
+        set => _temporaryDurationEnabled = value;
+    }
+
+    public int TemporaryDurationTicks {
+        get => ClampTemporaryDurationTicks(_temporaryDurationTicks);
+        set => _temporaryDurationTicks = ClampTemporaryDurationTicks(value);
+    }
+
+    public void ResetTemporaryOptionsToDefault() {
+        (_temporaryDurationEnabled, _temporaryDurationTicks) = (true, DefaultTemporaryDurationTicks);
     }
 
     public bool IsEnabled(string abilityDefName) {
@@ -191,6 +212,8 @@ public sealed class BottledAbilitySettings : ModSettings {
     public override void ExposeData() {
         Scribe_Collections.Look(ref _abilityEntries, "abilityEntries", LookMode.Deep);
         Scribe_Collections.Look(ref _categoryColorEntries, "categoryColorEntries", LookMode.Deep);
+        Scribe_Values.Look(ref _temporaryDurationEnabled, "temporaryDurationEnabled", true);
+        Scribe_Values.Look(ref _temporaryDurationTicks, "temporaryDurationTicks", DefaultTemporaryDurationTicks);
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit) {
             InitializeIfNeeded();
@@ -199,6 +222,10 @@ public sealed class BottledAbilitySettings : ModSettings {
 
     private static int ClampCharges(int charges) {
         return Mathf.Clamp(charges, MinCharges, MaxCharges);
+    }
+
+    private static int ClampTemporaryDurationTicks(int durationTicks) {
+        return Mathf.Clamp(durationTicks, MinTemporaryDurationTicks, MaxTemporaryDurationTicks);
     }
 
     private static BottledAbilitySettingEntry CreateEntryFromSpec(BottledAbilitySpec spec) {
