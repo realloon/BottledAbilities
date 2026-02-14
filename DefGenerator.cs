@@ -92,6 +92,7 @@ public static class DefGenerator {
     }
 
     private static void ApplyBaseProperties(ThingDef def, ThingCategoryDef? jarCategory) {
+        def.modContentPack = BottledAbilitiesMod.ContentPack;
         def.thingClass = typeof(ThingWithComps);
         def.category = ThingCategory.Item;
         def.drawerType = DrawerType.MapMeshOnly;
