@@ -115,7 +115,8 @@ public static class DefGenerator {
             def.thingCategories.Add(jarCategory);
         }
 
-        def.tradeTags = ["Drugs"];
+        def.tradeTags = ["ExoticMisc"];
+        def.thingSetMakerTags = ["RewardStandardLowFreq", "SkillNeurotrainer"];
         def.statBases = BuildBaseStatBases();
         def.comps = BuildBaseComps();
         def.graphicData = BuildBaseGraphicData();
