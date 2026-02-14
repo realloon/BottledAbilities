@@ -11,7 +11,6 @@ public class CompEmptyAbilityJar : ThingComp {
     private const int InfuseStackCount = 1;
 
     public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn) {
-        if (selPawn is null) yield break;
         if (!selPawn.IsColonistPlayerControlled) yield break;
         if (parent is null || !parent.Spawned) yield break;
         if (selPawn.MapHeld != parent.MapHeld) yield break;
