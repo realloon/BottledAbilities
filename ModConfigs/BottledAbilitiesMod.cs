@@ -46,8 +46,8 @@ public sealed class BottledAbilitiesMod : Mod {
         DrawTabs(ref y, inRect.width);
         var pageHintText = _activeTab switch {
             SettingsTab.AbilityJars =>
-                $"{ "VortexBA_SettingsPageHintCommon".Translate() } { "VortexBA_SettingsPageHintDisabledRemoval".Translate() }",
-            SettingsTab.CategoryColors => "VortexBA_SettingsPageHintCommon".Translate().ToString(),
+                $"{(string)"VortexBA_SettingsPageHintCommon".Translate()} {(string)"VortexBA_SettingsPageHintDisabledRemoval".Translate()}",
+            SettingsTab.CategoryColors => (string)"VortexBA_SettingsPageHintCommon".Translate(),
             _ => null
         };
         if (pageHintText is not null) {
