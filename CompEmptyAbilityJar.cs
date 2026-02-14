@@ -16,7 +16,7 @@ public class CompEmptyAbilityJar : ThingComp {
         if (parent is null || !parent.Spawned) yield break;
         if (selPawn.MapHeld != parent.MapHeld) yield break;
 
-        var openLabel = "VortexBA_FloatMenuInfuseOpen".Translate().ToString();
+        var openLabel = "VortexBA_FloatMenuInfuseOpen".Translate();
 
         // Reserve only 1 from the stack. Reserving the entire stack can fail if other pawns
         // have reserved some of it (even though one unit is still available).
@@ -55,7 +55,7 @@ public class CompEmptyAbilityJar : ThingComp {
             if (jarDef is null) continue;
 
             var charges = settings.GetCharges(def.defName);
-            var baseLabel = "VortexBA_FloatMenuInfuseOption".Translate(abilityLabel, charges).ToString();
+            var baseLabel = (string)"VortexBA_FloatMenuInfuseOption".Translate(abilityLabel, charges);
 
             var disabled = ability.GizmoDisabled(out var reason);
             var label = disabled && !reason.NullOrEmpty()
@@ -68,7 +68,7 @@ public class CompEmptyAbilityJar : ThingComp {
         }
 
         if (options.Count == 0) {
-            options.Add(new FloatMenuOption("VortexBA_FloatMenuNoEligibleAbilities".Translate().ToString(), null));
+            options.Add(new FloatMenuOption("VortexBA_FloatMenuNoEligibleAbilities".Translate(), null));
         }
 
         Find.WindowStack.Add(new FloatMenu(options));
