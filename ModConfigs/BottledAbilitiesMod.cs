@@ -20,7 +20,7 @@ public sealed class BottledAbilitiesMod : Mod {
 
     private enum SettingsTab {
         AbilityJars,
-        TemporaryAbilities,
+        Mechanics,
         CategoryColors
     }
 
@@ -60,9 +60,9 @@ public sealed class BottledAbilitiesMod : Mod {
         if (_activeTab == SettingsTab.AbilityJars) {
             DrawAbilityOptions(ref y, inRect.width, inRect.height - y - BottomReservedHeight, specs);
             DrawResetAbilityDefaultsButton(ref y, inRect.width, specs);
-        } else if (_activeTab == SettingsTab.TemporaryAbilities) {
-            DrawTemporaryAbilitySettings(ref y, inRect.width, inRect.height - y - BottomReservedHeight);
-            DrawResetTemporaryDefaultsButton(ref y, inRect.width);
+        } else if (_activeTab == SettingsTab.Mechanics) {
+            DrawMechanicsSettings(ref y, inRect.width, inRect.height - y - BottomReservedHeight);
+            DrawResetMechanicsDefaultsButton(ref y, inRect.width);
         } else if (_activeTab == SettingsTab.CategoryColors) {
             DrawCategoryColors(ref y, inRect.width);
             DrawResetColorDefaultsButton(ref y, inRect.width);
@@ -72,7 +72,7 @@ public sealed class BottledAbilitiesMod : Mod {
     private void DrawTabs(ref float y, float width) {
         var tabs = new[] {
             (Tab: SettingsTab.AbilityJars, Label: "VortexBA_SettingsTabAbilityList".Translate()),
-            (Tab: SettingsTab.TemporaryAbilities, Label: "VortexBA_SettingsTabExpiry".Translate()),
+            (Tab: SettingsTab.Mechanics, Label: "VortexBA_SettingsTabMechanics".Translate()),
             (Tab: SettingsTab.CategoryColors, Label: "VortexBA_SettingsTabCategory".Translate())
         };
 
@@ -130,8 +130,20 @@ public sealed class BottledAbilitiesMod : Mod {
         y += RowHeight + Grid;
     }
 
-    private void DrawTemporaryAbilitySettings(ref float y, float width, float availableHeight) {
+    private void DrawMechanicsSettings(ref float y, float width, float availableHeight) {
         var startY = y;
+        var ignoreCastConditions = Settings.IgnoreCastConditionsForBottledAbilities;
+        var ignoreCastConditionsRect = new Rect(0f, y, width, RowHeight);
+        var wasIgnoringCastConditions = ignoreCastConditions;
+        Widgets.CheckboxLabeled(ignoreCastConditionsRect, "VortexBA_SettingsIgnoreCastConditionsLabel".Translate(),
+            ref ignoreCastConditions);
+        if (ignoreCastConditions != wasIgnoringCastConditions) {
+            Settings.IgnoreCastConditionsForBottledAbilities = ignoreCastConditions;
+            WriteSettings();
+        }
+
+        y += RowHeight + Grid;
+
         var enabled = Settings.IsTemporaryDurationEnabled;
         var enabledRect = new Rect(0f, y, width, RowHeight);
         var wasEnabled = enabled;
@@ -182,15 +194,15 @@ public sealed class BottledAbilitiesMod : Mod {
         y += ButtonHeight + HalfGrid;
     }
 
-    private void DrawResetTemporaryDefaultsButton(ref float y, float width) {
+    private void DrawResetMechanicsDefaultsButton(ref float y, float width) {
         y += Grid * 2f;
 
         if (Widgets.ButtonText(new Rect(0f, y, width, ButtonHeight),
-                "VortexBA_SettingsResetTemporaryExpiryButton".Translate())) {
+                "VortexBA_SettingsResetMechanicsButton".Translate())) {
             Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-                "VortexBA_SettingsResetTemporaryExpiryConfirm".Translate(),
+                "VortexBA_SettingsResetMechanicsConfirm".Translate(),
                 delegate {
-                    Settings.ResetTemporaryOptionsToDefault();
+                    Settings.ResetMechanicsOptionsToDefault();
                     WriteSettings();
                 }));
         }

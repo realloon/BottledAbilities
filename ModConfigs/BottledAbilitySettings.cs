@@ -14,6 +14,7 @@ public sealed class BottledAbilitySettings : ModSettings {
     private List<BottledAbilityCategoryColorEntry> _categoryColorEntries = [];
     private bool _temporaryDurationEnabled = true;
     private int _temporaryDurationTicks = DefaultTemporaryDurationTicks;
+    private bool _ignoreCastConditionsForBottledAbilities;
 
     [Unsaved]
     private Dictionary<string, BottledAbilitySettingEntry>? _abilityByName;
@@ -72,8 +73,18 @@ public sealed class BottledAbilitySettings : ModSettings {
         set => _temporaryDurationTicks = ClampTemporaryDurationTicks(value);
     }
 
+    public bool IgnoreCastConditionsForBottledAbilities {
+        get => _ignoreCastConditionsForBottledAbilities;
+        set => _ignoreCastConditionsForBottledAbilities = value;
+    }
+
     public void ResetTemporaryOptionsToDefault() {
-        (_temporaryDurationEnabled, _temporaryDurationTicks) = (true, DefaultTemporaryDurationTicks);
+        ResetMechanicsOptionsToDefault();
+    }
+
+    public void ResetMechanicsOptionsToDefault() {
+        (_temporaryDurationEnabled, _temporaryDurationTicks, _ignoreCastConditionsForBottledAbilities) =
+            (true, DefaultTemporaryDurationTicks, false);
     }
 
     public bool IsEnabled(string abilityDefName) {
@@ -216,6 +227,7 @@ public sealed class BottledAbilitySettings : ModSettings {
         Scribe_Collections.Look(ref _categoryColorEntries, "categoryColorEntries", LookMode.Deep);
         Scribe_Values.Look(ref _temporaryDurationEnabled, "temporaryDurationEnabled", true);
         Scribe_Values.Look(ref _temporaryDurationTicks, "temporaryDurationTicks", DefaultTemporaryDurationTicks);
+        Scribe_Values.Look(ref _ignoreCastConditionsForBottledAbilities, "ignoreCastConditionsForBottledAbilities", false);
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit) {
             InitializeIfNeeded();
