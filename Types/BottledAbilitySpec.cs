@@ -12,5 +12,5 @@ public sealed class BottledAbilitySpec(
     public int DefaultCharges { get; } = defaultCharges;
     public bool DefaultEnabled { get; } = defaultEnabled;
 
-    public string JarDefName => $"VortexBA_{AbilityDefName}";
+    public string DefName => $"VortexBA_{AbilityDefName}";
 }

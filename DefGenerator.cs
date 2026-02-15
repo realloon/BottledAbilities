@@ -21,7 +21,7 @@ public static class DefGenerator {
         }
 
         foreach (var spec in specs) {
-            var jarDefName = spec.JarDefName;
+            var jarDefName = spec.DefName;
             var abilityDef = DefDatabase<AbilityDef>.GetNamedSilentFail(spec.AbilityDefName);
             var enabled = settings.IsEnabled(spec.AbilityDefName);
             var existing = DefDatabase<ThingDef>.GetNamedSilentFail(jarDefName);
@@ -59,7 +59,7 @@ public static class DefGenerator {
     private static ThingDef CreateJarDef(ThingCategoryDef? jarCategory, AbilityDef abilityDef, BottledAbilitySpec spec,
         UnityEngine.Color color, int charges) {
         var def = new ThingDef {
-            defName = spec.JarDefName,
+            defName = spec.DefName,
             shortHash = 0,
             index = ushort.MaxValue,
             debugRandomId = (ushort)Rand.RangeInclusive(0, 65535)
