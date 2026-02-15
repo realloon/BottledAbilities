@@ -29,11 +29,7 @@ public class Hediff_BottledAbility : HediffWithComps {
             var chargesLabel = $"{_charges}x";
             var baseLabel = base.LabelInBrackets;
 
-            if (baseLabel.NullOrEmpty()) {
-                return chargesLabel;
-            }
-
-            return $"{chargesLabel}, {baseLabel}";
+            return baseLabel.NullOrEmpty() ? chargesLabel : $"{chargesLabel}, {baseLabel}";
         }
     }
 
@@ -65,12 +61,6 @@ public class Hediff_BottledAbility : HediffWithComps {
         }
     }
 
-    public override void ExposeData() {
-        base.ExposeData();
-        Scribe_Defs.Look(ref _abilityDef, "abilityDef");
-        Scribe_Values.Look(ref _charges, "charges");
-    }
-
     private void ApplyDurationSettings() {
         var durationComp = GetComp<HediffComp_DisappearsDisableable>();
         if (durationComp is null) return;
@@ -79,5 +69,11 @@ public class Hediff_BottledAbility : HediffWithComps {
         settings.InitializeIfNeeded();
         durationComp.SetDuration(settings.TemporaryDurationTicks);
         durationComp.disabled = !settings.IsTemporaryDurationEnabled;
+    }
+
+    public override void ExposeData() {
+        base.ExposeData();
+        Scribe_Defs.Look(ref _abilityDef, "abilityDef");
+        Scribe_Values.Look(ref _charges, "charges");
     }
 }

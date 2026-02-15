@@ -398,13 +398,14 @@ public sealed class BottledAbilitiesMod : Mod {
             RowHeight);
 
         var label = abilityDef?.label ?? GenText.SplitCamelCase(spec.AbilityDefName);
+
         if (missing) {
             label = "VortexBA_SettingsAbilityMissing".Translate(label);
         }
 
-        if (Prefs.DevMode) {
-            label = $"{label} [{spec.AbilityDefName}]";
-        }
+        #if DEBUG
+        label = $"{label} [{spec.AbilityDefName}]";
+        #endif
 
         var wasEnabled = enabled;
         Widgets.CheckboxLabeled(checkboxRect, label, ref enabled);
