@@ -1,6 +1,7 @@
 using JetBrains.Annotations;
 using RimWorld;
 using Verse;
+using BottledAbilities.Helpers;
 
 // ReSharper disable InconsistentNaming
 
@@ -15,6 +16,15 @@ public class IngestionOutcomeDoer_GiveBottledAbility : IngestionOutcomeDoer {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (abilityDef is null) {
             Log.Error($"[BottledAbilities] Missing abilityDef in {ingested.def.defName}.");
+            return;
+        }
+
+        if (AbilitySupplementHelper.TryRefreshCooldownFromSupplement(pawn, abilityDef)) {
+            return;
+        }
+
+        if (AbilitySupplementHelper.IsOwnedAbilityCooldownRefreshEnabled() &&
+            AbilitySupplementHelper.HasOwnedPermanentAbility(pawn, abilityDef)) {
             return;
         }
 
