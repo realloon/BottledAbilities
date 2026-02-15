@@ -11,4 +11,3 @@ public class CompProperties_EmptyAbilityJar : CompProperties {
         compClass = typeof(CompEmptyAbilityJar);
     }
 }
-
