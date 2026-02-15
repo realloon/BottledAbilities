@@ -2,7 +2,7 @@ using HarmonyLib;
 using RimWorld;
 using Verse;
 
-namespace BottledAbilities.Utils;
+namespace BottledAbilities.Helpers;
 
 internal static class AbilityInfusionUtility {
     public static bool TryInfuse(Pawn pawn, Ability ability, Thing emptyJar) {

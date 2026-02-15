@@ -1,7 +1,7 @@
 using JetBrains.Annotations;
 using Verse;
 using Verse.AI;
-using BottledAbilities.Utils;
+using BottledAbilities.Helpers;
 
 namespace BottledAbilities;
 
