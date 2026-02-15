@@ -1,5 +1,6 @@
 using RimWorld;
 using Verse;
+using BottledAbilities.Helpers;
 
 namespace BottledAbilities;
 
@@ -26,7 +27,10 @@ public class CompBottledAbility : ThingComp {
 
     public Gizmo? GetInventoryGizmoExtra(Pawn pawn) {
         var doer = CachedDoer;
-        if (pawn.abilities.GetAbility(doer.abilityDef, includeTemporary: true) is not null) return null;
+        if (pawn.abilities.GetAbility(doer.abilityDef, includeTemporary: true) is not null &&
+            !AbilitySupplementHelper.ShouldAllowCooldownSupplementIngestion(pawn, doer.abilityDef)) {
+            return null;
+        }
 
         return new Command_Action {
             defaultLabel = "VortexBA_CompUse".Translate(parent.LabelNoCount),
