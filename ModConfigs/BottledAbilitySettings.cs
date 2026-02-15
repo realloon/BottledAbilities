@@ -15,6 +15,7 @@ public sealed class BottledAbilitySettings : ModSettings {
     private bool _temporaryDurationEnabled = true;
     private int _temporaryDurationTicks = DefaultTemporaryDurationTicks;
     private bool _ignoreCastConditionsForBottledAbilities;
+    private bool _ownedAbilityCooldownRefreshEnabled = true;
 
     [Unsaved]
     private Dictionary<string, BottledAbilitySettingEntry>? _abilityByName;
@@ -78,13 +79,19 @@ public sealed class BottledAbilitySettings : ModSettings {
         set => _ignoreCastConditionsForBottledAbilities = value;
     }
 
+    public bool OwnedAbilityCooldownRefreshEnabled {
+        get => _ownedAbilityCooldownRefreshEnabled;
+        set => _ownedAbilityCooldownRefreshEnabled = value;
+    }
+
     public void ResetTemporaryOptionsToDefault() {
         ResetMechanicsOptionsToDefault();
     }
 
     public void ResetMechanicsOptionsToDefault() {
-        (_temporaryDurationEnabled, _temporaryDurationTicks, _ignoreCastConditionsForBottledAbilities) =
-            (true, DefaultTemporaryDurationTicks, false);
+        (_temporaryDurationEnabled, _temporaryDurationTicks, _ignoreCastConditionsForBottledAbilities,
+                _ownedAbilityCooldownRefreshEnabled) =
+            (true, DefaultTemporaryDurationTicks, false, true);
     }
 
     public bool IsEnabled(string abilityDefName) {
@@ -228,6 +235,7 @@ public sealed class BottledAbilitySettings : ModSettings {
         Scribe_Values.Look(ref _temporaryDurationEnabled, "temporaryDurationEnabled", true);
         Scribe_Values.Look(ref _temporaryDurationTicks, "temporaryDurationTicks", DefaultTemporaryDurationTicks);
         Scribe_Values.Look(ref _ignoreCastConditionsForBottledAbilities, "ignoreCastConditionsForBottledAbilities", false);
+        Scribe_Values.Look(ref _ownedAbilityCooldownRefreshEnabled, "ownedAbilityCooldownRefreshEnabled", true);
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit) {
             InitializeIfNeeded();
