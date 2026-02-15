@@ -1,5 +1,5 @@
-using HarmonyLib;
 using JetBrains.Annotations;
+using HarmonyLib;
 using Verse;
 
 // ReSharper disable InconsistentNaming
@@ -12,6 +12,6 @@ public static class Prefix_Thing_DrawGUIOverlay {
     [UsedImplicitly]
     [HarmonyPrefix]
     private static bool HideItemStackLabelsOnAbilityShelf(Thing __instance) {
-        return !AbilityShelfVisibilityUtility.IsItemOnAbilityShelf(__instance);
+        return !Building_AbilityShelfVisual.IsItemOnAbilityShelf(__instance);
     }
 }

@@ -7,6 +7,7 @@ namespace BottledAbilities;
 // ReSharper disable once InconsistentNaming
 [UsedImplicitly]
 public class Building_AbilityShelfVisual : Building_Storage {
+    private const string AbilityShelfDefName = "VortexBA_AbilityShelfSmall";
     private const string StageA = "VortexBA_AbilityShelf_StageA";
     private const string StageB = "VortexBA_AbilityShelf_StageB";
     private const string StageC = "VortexBA_AbilityShelf_StageC";
@@ -51,5 +52,14 @@ public class Building_AbilityShelfVisual : Building_Storage {
         if (Spawned) {
             DirtyMapMesh(Map);
         }
+    }
+
+    // helper
+    public static bool IsItemOnAbilityShelf(Thing thing) {
+        if (thing.def.category != ThingCategory.Item) return false;
+        if (!thing.Spawned || thing.MapHeld is null) return false;
+
+        var edifice = thing.PositionHeld.GetEdifice(thing.MapHeld);
+        return edifice?.def.defName == AbilityShelfDefName;
     }
 }

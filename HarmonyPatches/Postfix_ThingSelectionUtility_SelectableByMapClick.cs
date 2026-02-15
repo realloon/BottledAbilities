@@ -14,7 +14,7 @@ public static class Postfix_ThingSelectionUtility_SelectableByMapClick {
     [HarmonyPostfix]
     private static void HideItemsOnAbilityShelf(Thing t, ref bool __result) {
         if (!__result) return;
-        if (AbilityShelfVisibilityUtility.IsItemOnAbilityShelf(t)) {
+        if (Building_AbilityShelfVisual.IsItemOnAbilityShelf(t)) {
             __result = false;
         }
     }
