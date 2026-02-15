@@ -9,6 +9,7 @@ namespace BottledAbilities;
 public class Hediff_BottledAbility : HediffWithComps {
     private AbilityDef? _abilityDef;
     private int _charges;
+    private bool _grantedAbility = true;
 
     public AbilityDef? AbilityDef {
         get => _abilityDef;
@@ -18,6 +19,11 @@ public class Hediff_BottledAbility : HediffWithComps {
     public int Charges {
         get => _charges;
         set => _charges = value;
+    }
+
+    public bool GrantedAbility {
+        get => _grantedAbility;
+        set => _grantedAbility = value;
     }
 
     public override string LabelBase => _abilityDef?.label ?? base.LabelBase;
@@ -38,6 +44,7 @@ public class Hediff_BottledAbility : HediffWithComps {
             _abilityDef != otherBottled._abilityDef) return false;
 
         _charges += otherBottled._charges;
+        _grantedAbility = _grantedAbility && otherBottled._grantedAbility;
         return true;
     }
 
@@ -48,12 +55,16 @@ public class Hediff_BottledAbility : HediffWithComps {
 
         if (pawn.abilities.GetAbility(_abilityDef, includeTemporary: true) is null) {
             pawn.abilities.GainAbility(_abilityDef);
+            _grantedAbility = true;
+            return;
         }
+
+        _grantedAbility = false;
     }
 
     public override void PostRemoved() {
         base.PostRemoved();
-        if (_abilityDef is null || pawn.abilities is null) return;
+        if (!_grantedAbility || _abilityDef is null || pawn.abilities is null) return;
 
         var ability = pawn.abilities.GetAbility(_abilityDef);
         if (ability is not null) {
@@ -75,5 +86,6 @@ public class Hediff_BottledAbility : HediffWithComps {
         base.ExposeData();
         Scribe_Defs.Look(ref _abilityDef, "abilityDef");
         Scribe_Values.Look(ref _charges, "charges");
+        Scribe_Values.Look(ref _grantedAbility, "grantedAbility", true);
     }
 }
