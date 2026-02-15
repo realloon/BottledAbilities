@@ -132,6 +132,18 @@ public sealed class BottledAbilitiesMod : Mod {
 
     private void DrawMechanicsSettings(ref float y, float width, float availableHeight) {
         var startY = y;
+        var cooldownRefreshEnabled = Settings.OwnedAbilityCooldownRefreshEnabled;
+        var cooldownRefreshRect = new Rect(0f, y, width, RowHeight);
+        var wasCooldownRefreshEnabled = cooldownRefreshEnabled;
+        Widgets.CheckboxLabeled(cooldownRefreshRect, "VortexBA_SettingsRecoverNativeAbilityCooldownLabel".Translate(),
+            ref cooldownRefreshEnabled);
+        if (cooldownRefreshEnabled != wasCooldownRefreshEnabled) {
+            Settings.OwnedAbilityCooldownRefreshEnabled = cooldownRefreshEnabled;
+            WriteSettings();
+        }
+
+        y += RowHeight + Grid;
+
         var ignoreCastConditions = Settings.IgnoreCastConditionsForBottledAbilities;
         var ignoreCastConditionsRect = new Rect(0f, y, width, RowHeight);
         var wasIgnoringCastConditions = ignoreCastConditions;
@@ -353,7 +365,7 @@ public sealed class BottledAbilitiesMod : Mod {
             .ToList();
     }
 
-    private void DrawAbilityColumnHeaders(float x, float y, float rowWidth) {
+    private static void DrawAbilityColumnHeaders(float x, float y, float rowWidth) {
         ResolveAbilityControlLayout(rowWidth, out var controlsStart, out var categoryWidth, out var chargeButtonWidth);
 
         var enabledHeader = "VortexBA_SettingsEnabledHeader".Translate();
